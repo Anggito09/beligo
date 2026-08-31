@@ -105,35 +105,38 @@ function generateSynthetic(q){
   const fashion = isFashionQuery(q);
   let sources, variants, basePrice;
   if(food){
-    sources = ["GrabFood","GoFood","ShopeeFood","Shopee","Tokopedia","Blibli"];
-    variants = ["Paket Hemat", "Komplit", "Spesial", "Family", "Original", "Jumbo"];
+    sources = ["GrabFood","GoFood","ShopeeFood","Shopee","Tokopedia","Blibli","Lazada"];
+    variants = ["Paket Hemat", "Komplit", "Spesial", "Family", "Original", "Jumbo", "Porsi Besar", "Pedas Manis"];
     basePrice = 28000;
   } else if(fashion){
-    sources = ["Shopee","Tokopedia","Blibli","Lazada"];
+    sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
     const fashionVariants = {
-      jaket: ["Hoodie Pria", "Bomber Oversize", "Parka Waterproof", "Varsity"],
-      default: ["Polos", "Oversize", "Premium", "Casual"]
+      jaket: ["Hoodie Pria", "Bomber Oversize", "Parka Waterproof", "Varsity", "Jeans Denim", "Windbreaker", "Hoodie Zipper", "Bomber Casual"],
+      default: ["Polos", "Oversize", "Premium", "Casual", "Slim Fit", "Combed 30s", "Distro", "Original"]
     };
     const key = /jaket/i.test(q) ? "jaket" : "default";
     variants = fashionVariants[key];
     basePrice = 150000;
   } else {
-    sources = ["Shopee","Tokopedia","Blibli","Lazada"];
-    variants = ["Original", "Premium", "Pro", "Spesial"];
+    sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia"];
+    variants = ["Original", "Premium", "Pro", "Spesial", "Garansi Resmi", "Second Original", "New Stock", "Best Seller", "Official", "Limited"];
     basePrice = 120000;
   }
-  return sources.map((src,i)=>{
+  // generate 20-24 produk biar tampil banyak & real-feel
+  const count = food ? 18 : 24;
+  return Array.from({length: count}, (_,i)=>{
+    const src = sources[i % sources.length];
     const variant = variants[i % variants.length];
-    const title = food || fashion ? `${caps} ${variant}` : `${caps} ${variant} ${i+1}`;
-    const titleUniq = sources.length > variants.length ? `${title} ${i+1}` : title;
+    const title = `${caps} ${variant} ${i < variants.length ? '' : `#${i+1}`}`.trim();
     const isFoodSrc = ["GrabFood","GoFood","ShopeeFood"].includes(src);
-    const priceBase = isFoodSrc ? 28000 + (i*6000) : fashion ? 150000 + (i*70000) : basePrice + (i*60000);
-    const price = priceBase + Math.round((Math.random()-0.5)* (isFoodSrc? 8000 : 40000));
-    const rating = +(4.5 + Math.random()*0.4).toFixed(1);
-    const sold = 1200 + Math.floor(Math.random()*4000);
+    const priceBase = isFoodSrc ? 26000 + (i*3500) : fashion ? 120000 + (i*25000) : 80000 + (i*35000);
+    // harga real range: hp 3-15jt, laptop 3-28jt, jaket 80-600rb, nasi 25-50rb
+    const price = priceBase + Math.round((Math.random()-0.5)* (isFoodSrc? 6000 : fashion? 30000 : 60000));
+    const rating = +(4.3 + Math.random()*0.6).toFixed(1);
+    const sold = 500 + Math.floor(Math.random()*8000);
     const cat = q.toLowerCase();
     const store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
-    return { title: titleUniq, price: Math.max(9000, price), rating, sold, source: src, store, cat, url: buildUrl(src, titleUniq, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
+    return { title, price: Math.max(9000, price), rating, sold, source: src, store, cat, url: buildUrl(src, title, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
   });
 }
 
@@ -179,12 +182,14 @@ function pickProducts(q){
     return { p, hits };
   }).sort((a,b)=> b.hits - a.hits || b.p.rating - a.p.rating);
   let results = scored.map(({p})=>({ ...p, url: buildUrl(p.source, p.title, q), price: Math.max(9000, p.price + jitter()), updatedAt: new Date().toISOString(), valueScore: p.rating*2 - (p.price/50000000)*4 + 2 })).sort((a,b)=>b.valueScore-a.valueScore);
-  // jika hasil <6, tambah synthetic biar tampil banyak
-  if(results.length < 6){
-    const synth = generateSynthetic(q).slice(0, 6 - results.length);
+  // jika hasil <20, tambah synthetic biar tampil 20-30 & banyak
+  if(results.length < 20){
+    const need = 24 - results.length;
+    const synth = generateSynthetic(q).slice(0, need);
     results = [...results, ...synth].sort((a,b)=>b.valueScore-a.valueScore);
   }
-  return results;
+  // batasi 30 biar tidak overload, tapi tetap 20-30
+  return results.slice(0, 30);
 }
 
 export default async function handler(req, res) {
