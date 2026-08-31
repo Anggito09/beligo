@@ -66,7 +66,7 @@ function pickProducts(q){
   if(filtered.length===0){
     filtered = ALL_PRODUCTS.filter(p => tokens.slice(0,1).some(w => p.title.toLowerCase().includes(w)));
   }
-  if(filtered.length===0) filtered = ALL_PRODUCTS.slice(0,8);
+  if(filtered.length===0) return [];
   const isFood = filtered.some(p => ["GrabFood","GoFood","ShopeeFood"].includes(p.source));
   const jitter = () => Math.round((Math.random()-0.5)*(isFood? 6000 : 120000));
   // ranking: yang mengandung semua token di atas

@@ -137,16 +137,22 @@ async function fetchLive(q){
     const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
     if(!res.ok) throw new Error(res.status + " " + res.statusText);
     const json = await res.json();
-    state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString(), sold: p.sold ?? Math.floor(Math.random()*3000) }));
-    if(state.data.length===0) throw new Error("empty");
+    state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString(), sold: p.sold ?? Math.floor(Math.random()*3000), url: p.url || buildLink(p.source, q) }));
     const marketCount = json.sources ? json.sources.length : 4;
+    if(state.data.length===0){
+      $("#lastUpdate").textContent = `Tidak ada hasil untuk "${q}" • Coba kata kunci lain`;
+      if(json.sources) { const el=$("#statMarkets"); if(el) el.textContent = marketCount; }
+      setLoading(false);
+      render();
+      return;
+    }
     $("#lastUpdate").textContent = json.cached ? `Sinkron • ${marketCount} marketplace • Update 15 Menit` : `Live • ${marketCount} marketplace aktif`;
     if(json.sources) { const el=$("#statMarkets"); if(el) el.textContent = marketCount; }
     setLoading(false);
     render();
   }catch(e){
-    $("#lastUpdate").textContent = "Gagal fetch live, pakai cache mock";
-    state.data = MOCK.map(x=>({...x, price: x.price + Math.round((Math.random()-0.5)*100000), updatedAt: new Date().toISOString()}));
+    $("#lastUpdate").textContent = `Gagal memuat "${q}" • Periksa koneksi`;
+    state.data = [];
     setLoading(false);
     render();
   }
