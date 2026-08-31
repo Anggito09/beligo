@@ -20,19 +20,27 @@ const ALL_PRODUCTS = [
   { title:"MacBook Pro 14 M3 Pro 18GB 512GB", price:28500000, rating:4.9, sold:420, source:"Tokopedia", url:"#", cat:"laptop" },
   { title:"Infinix Inbook X2 - i3 11th Gen", price:3999000, rating:3.8, sold:560, source:"Lazada", url:"#", cat:"laptop" },
   { title:"Asus TUF Gaming F15 - i5 RTX 2050", price:10990000, rating:4.7, sold:670, source:"Shopee", url:"#", cat:"laptop" },
-  // hp samsung
+  { title:"Lenovo ThinkPad X1 Carbon Gen 11 i7 16GB", price:24500000, rating:4.8, sold:90, source:"Blibli", url:"#", cat:"laptop thinkpad" },
+  { title:"HP Pavilion Aero 13 Ryzen 7 16GB", price:12900000, rating:4.7, sold:340, source:"Shopee", url:"#", cat:"laptop" },
+  // hp samsung & hp umum
   { title:"Samsung Galaxy A55 5G 8/256GB", price:5499000, rating:4.8, sold:3200, source:"Shopee", url:"#", cat:"hp samsung" },
   { title:"Samsung Galaxy S23 FE 8/256GB", price:7999000, rating:4.7, sold:1500, source:"Tokopedia", url:"#", cat:"hp samsung" },
   { title:"Samsung Galaxy M54 8/256GB", price:4599000, rating:4.6, sold:980, source:"Blibli", url:"#", cat:"hp samsung" },
   { title:"Samsung Galaxy Z Flip5 8/256GB", price:14999000, rating:4.8, sold:420, source:"Lazada", url:"#", cat:"hp samsung" },
-  // kulkas
+  { title:"iPhone 15 128GB Garansi Resmi", price:13990000, rating:4.9, sold:2100, source:"Blibli", url:"#", cat:"hp iphone" },
+  { title:"Xiaomi Redmi Note 13 Pro 8/256GB", price:3299000, rating:4.7, sold:4300, source:"Shopee", url:"#", cat:"hp xiaomi" },
+  // kulkas & elektronik rumah
   { title:"Kulkas 2 Pintu LG 260L Inverter", price:3899000, rating:4.7, sold:760, source:"Tokopedia", url:"#", cat:"kulkas" },
   { title:"Kulkas Sharp 2 Pintu 220L J-Tech", price:3299000, rating:4.6, sold:540, source:"Shopee", url:"#", cat:"kulkas" },
   { title:"Kulkas Polytron Belleza 180L 2 Pintu", price:2799000, rating:4.4, sold:310, source:"Blibli", url:"#", cat:"kulkas" },
-  // headset
+  { title:"TV LED 43 inch Samsung 4K UHD", price:4299000, rating:4.7, sold:890, source:"Tokopedia", url:"#", cat:"tv elektronik" },
+  { title:"Mesin Cuci LG 8Kg Front Loading", price:3899000, rating:4.6, sold:420, source:"Lazada", url:"#", cat:"mesin cuci elektronik" },
+  // headset & aksesoris
   { title:"Headset Gaming Fantech HG11 Captain", price:259000, rating:4.7, sold:5400, source:"Shopee", url:"#", cat:"headset gaming" },
   { title:"Headset SteelSeries Arctis 1 Wireless", price:1299000, rating:4.8, sold:890, source:"Tokopedia", url:"#", cat:"headset gaming" },
   { title:"Headset Rexus Vonix F30 Gaming", price:399000, rating:4.5, sold:1200, source:"Blibli", url:"#", cat:"headset gaming" },
+  { title:"Mouse Gaming Logitech G102 Lightsync", price:199000, rating:4.8, sold:12000, source:"Shopee", url:"#", cat:"mouse gaming" },
+  { title:"Keyboard Mechanical Rexus Daxa M71", price:699000, rating:4.7, sold:2100, source:"Tokopedia", url:"#", cat:"keyboard gaming" },
   // makanan & minuman — GrabFood / GoFood / ShopeeFood
   { title:"Ayam Geprek Sambal Bawang + Nasi", price:28000, rating:4.8, sold:8200, source:"GrabFood", url:"#", cat:"makanan ayam geprek" },
   { title:"Bakso Malang Komplit Tetelan", price:35000, rating:4.7, sold:5400, source:"GoFood", url:"#", cat:"makanan bakso" },
@@ -42,20 +50,33 @@ const ALL_PRODUCTS = [
   { title:"Sate Ayam Madura 10 Tusuk + Lontong", price:40000, rating:4.6, sold:2700, source:"ShopeeFood", url:"#", cat:"makanan sate" },
   { title:"Mie Gacoan Level 3 + Es Teh", price:30000, rating:4.5, sold:4800, source:"GrabFood", url:"#", cat:"makanan mie gacoan" },
   { title:"Burger King Whopper Paket", price:55000, rating:4.6, sold:1900, source:"GoFood", url:"#", cat:"makanan burger" },
+  // ikan cupang & hewan — Shopee/Tokopedia
+  { title:"Ikan Cupang Halfmoon Super Red Jantan", price:45000, rating:4.8, sold:3200, source:"Shopee", url:"#", cat:"ikan cupang hias" },
+  { title:"Ikan Cupang Koi Galaxy Multi Colour", price:75000, rating:4.7, sold:1800, source:"Tokopedia", url:"#", cat:"ikan cupang" },
+  { title:"Ikan Cupang Plakat Blue Solid", price:35000, rating:4.6, sold:2100, source:"Blibli", url:"#", cat:"ikan cupang" },
+  { title:"Aquarium Cupang Mini 15cm + Tanaman", price:85000, rating:4.5, sold:900, source:"Lazada", url:"#", cat:"ikan cupang aquarium" },
+  { title:"Pakan Ikan Cupang Premium 50g", price:25000, rating:4.7, sold:5400, source:"Shopee", url:"#", cat:"ikan pakan" },
+  // fashion & sepatu
+  { title:"Sepatu Sneakers Nike Air Jordan 1 Low", price:1299000, rating:4.8, sold:3400, source:"Tokopedia", url:"#", cat:"sepatu sneakers" },
+  { title:"Kaos Polos Cotton Combed 30s", price:45000, rating:4.6, sold:15000, source:"Shopee", url:"#", cat:"baju kaos fashion" },
+  { title:"Tas Ransel Eiger Pria Waterproof", price:399000, rating:4.7, sold:2100, source:"Blibli", url:"#", cat:"tas ransel" },
 ];
 
 function buildUrl(source, title, q){
+  // Direct product link: pakai judul produk biar tidak search umum, + fallback search jika produk tidak ada
   const kw = encodeURIComponent(title);
   const qq = encodeURIComponent(q);
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   const map = {
-    Shopee: `https://shopee.co.id/search?keyword=${qq}`,
-    Tokopedia: `https://www.tokopedia.com/search?st=product&q=${qq}`,
-    Blibli: `https://www.blibli.com/search?s=${qq}`,
-    Lazada: `https://www.lazada.co.id/tag/${qq}/`,
-    GrabFood: `https://food.grab.com/id/id/search?query=${qq}`,
-    GoFood: `https://gofood.co.id/search?q=${qq}`,
-    ShopeeFood: `https://shopee.co.id/shopeefood/search?keyword=${qq}`,
+    Shopee: `https://shopee.co.id/search?keyword=${kw}`,
+    Tokopedia: `https://www.tokopedia.com/search?st=product&q=${kw}`,
+    Blibli: `https://www.blibli.com/p/${slug}/ps--${kw}`,
+    Lazada: `https://www.lazada.co.id/tag/${slug}/`,
+    GrabFood: `https://food.grab.com/id/id/restaurant/${slug}`,
+    GoFood: `https://gofood.co.id/merchant/${slug}`,
+    ShopeeFood: `https://shopee.co.id/shopeefood/${slug}`,
   };
+  // Untuk Shopee/Tokopedia search by title lebih akurat direct ke produk
   return map[source] || `https://www.google.com/search?q=${kw}`;
 }
 

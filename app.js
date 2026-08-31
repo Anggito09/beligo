@@ -42,17 +42,19 @@ function valueScore(p){
   return +( (p.rating*2) - (p.price/maxPrice*4) + 2 ).toFixed(1);
 }
 function buildLink(source, q){
+  // Untuk fallback client: pakai keyword search title-spesifik (direct ke listing produk)
   const qq = encodeURIComponent(q);
+  const kw = qq;
   const map = {
-    Shopee: `https://shopee.co.id/search?keyword=${qq}`,
-    Tokopedia: `https://www.tokopedia.com/search?st=product&q=${qq}`,
-    Blibli: `https://www.blibli.com/search?s=${qq}`,
-    Lazada: `https://www.lazada.co.id/tag/${qq}/`,
-    GrabFood: `https://food.grab.com/id/id/search?query=${qq}`,
-    GoFood: `https://gofood.co.id/search?q=${qq}`,
-    ShopeeFood: `https://shopee.co.id/shopeefood/search?keyword=${qq}`,
+    Shopee: `https://shopee.co.id/search?keyword=${kw}`,
+    Tokopedia: `https://www.tokopedia.com/search?st=product&q=${kw}`,
+    Blibli: `https://www.blibli.com/search?s=${kw}`,
+    Lazada: `https://www.lazada.co.id/tag/${kw}/`,
+    GrabFood: `https://food.grab.com/id/id/search?query=${kw}`,
+    GoFood: `https://gofood.co.id/search?q=${kw}`,
+    ShopeeFood: `https://shopee.co.id/shopeefood/search?keyword=${kw}`,
   };
-  return map[source] || `https://www.google.com/search?q=${qq}`;
+  return map[source] || `https://www.google.com/search?q=${kw}`;
 }
 function filtered(){
   let arr = [...state.data];
