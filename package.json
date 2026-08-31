@@ -2,6 +2,8 @@
   "name": "beligo",
   "version": "0.1.0",
   "description": "Beligo — Smart Price Comparison & Shopping Decision Platform",
+  "author": "Anggito",
+  "contributors": ["Anggito <https://github.com/Anggito09>", "AndoZR <https://github.com/AndoZR>"],
   "type": "module",
   "scripts": {
     "dev": "npx serve . -l 3000",

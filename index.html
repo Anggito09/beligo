@@ -52,16 +52,18 @@
 
     <div class="hero-card">
       <div class="card-head">
-        <span>Live Ranking Preview</span>
-        <span class="dot"></span>
+        <div><span class="card-kicker">Live Ranking</span><strong>Preview rekomendasi real-time</strong></div>
+        <span class="dot" aria-hidden="true"></span>
       </div>
       <div class="quadrants">
-        <div class="quad best"><b>🏆 Best Value</b><small>Termurah · Rating Tinggi</small><strong id="previewBest">Lenovo IdeaPad — Rp 6.2jt · ⭐ 4.9</strong></div>
-        <div class="quad premium"><b>💎 Premium</b><small>Termahal · Rating Tinggi</small><strong id="previewPremium">MacBook Pro — Rp 28.5jt · ⭐ 4.9</strong></div>
-        <div class="quad risky"><b>⚠️ Risky Cheap</b><small>Termurah · Rating Rendah</small><strong id="previewRisky">Laptop Axioo — Rp 3.1jt · ⭐ 3.2</strong></div>
-        <div class="quad balanced"><b>⚖️ Value Score</b><small>Skor gabungan harga+rating</small><strong id="previewScore">Asus Vivobook — Score 8.7</strong></div>
+        <div class="quad best"><div class="quad-icon">✓</div><div><b>Nilai Terbaik</b><small>Harga rendah • Rating tinggi</small><strong id="previewBest">Acer Aspire 5 — Rp 5.8jt • 4.6</strong></div></div>
+        <div class="quad premium"><div class="quad-icon">◆</div><div><b>Premium</b><small>Kualitas teratas</small><strong id="previewPremium">MacBook Pro 14 — Rp 28.5jt • 4.9</strong></div></div>
+        <div class="quad risky"><div class="quad-icon">!</div><div><b>Hemat Risiko</b><small>Harga miring • Perlu cek ulasan</small><strong id="previewRisky">Zyrex Sky 232 — Rp 2.85jt • 3.0</strong></div></div>
+        <div class="quad balanced"><div class="quad-icon">☆</div><div><b>Rekomendasi</b><small>Skor seimbang harga & rating</small><strong id="previewScore">Lenovo IdeaPad Slim 3 — Skor 10.9</strong></div></div>
       </div>
-      <p class="card-foot">Github Pages = frontend statis. Untuk up-to-date otomatis, hubungkan ke <code>/api</code> (Vercel/Cloudflare) — sudah disiapkan di <code>api/</code>.</p>
+      <div class="hero-card-foot">
+        <span>4 marketplace</span><i></i><span>Update 15 menit</span><i></i><span>Kurasi otomatis</span>
+      </div>
     </div>
   </div>
 </section>
@@ -93,7 +95,7 @@
 
 <footer class="footer">
   <div class="container footer-inner">
-    <span>© 2026 Beligo — Smart Price Comparison. Dibuat untuk Anggito.</span>
+    <span>© 2026 Beligo — Smart Price Comparison. Dibuat oleh Anggito & <a href="https://github.com/AndoZR" target="_blank" rel="noreferrer">AndoZR</a>.</span>
     <a href="https://github.com/Anggito09/beligo" target="_blank">View on GitHub ↗</a>
   </div>
 </footer>
