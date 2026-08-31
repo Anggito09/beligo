@@ -77,6 +77,13 @@ const ALL_PRODUCTS = [
   { title:"Sepatu Sneakers Nike Air Jordan 1 Low", price:1299000, rating:4.8, sold:3400, source:"Tokopedia", store:"Nike Official Store Tokopedia", url:"#", cat:"sepatu sneakers" },
   { title:"Kaos Polos Cotton Combed 30s", price:45000, rating:4.6, sold:15000, source:"Shopee", store:"Erigo Store Shopee", url:"#", cat:"baju kaos fashion" },
   { title:"Tas Ransel Eiger Pria Waterproof", price:399000, rating:4.7, sold:2100, source:"Blibli", store:"Eiger Blibli Official", url:"#", cat:"tas ransel" },
+  // parfum — brand H&M, Zara, dll
+  { title:"Parfum H&M Venus Eau de Parfum 50ml", price:299000, rating:4.7, sold:2100, source:"Shopee", store:"H&M Beauty Official Shopee", url:"#", cat:"parfum h&m" },
+  { title:"Parfum H&M Midnight Bloom 50ml", price:279000, rating:4.6, sold:1800, source:"Tokopedia", store:"H&M Official Tokopedia", url:"#", cat:"parfum h&m" },
+  { title:"Parfum H&M Fleur d'Amour 30ml", price:199000, rating:4.5, sold:1200, source:"Blibli", store:"H&M Blibli Official", url:"#", cat:"parfum h&m" },
+  { title:"Parfum Zara Red Temptation 80ml", price:459000, rating:4.8, sold:3400, source:"Shopee", store:"Zara Beauty Official Shopee", url:"#", cat:"parfum zara" },
+  { title:"Parfum Zara Black Amber 100ml", price:399000, rating:4.7, sold:2100, source:"Tokopedia", store:"Zara Official Tokopedia", url:"#", cat:"parfum zara" },
+  { title:"Parfum HMNS Farhampton 100ml", price:329000, rating:4.8, sold:2800, source:"Shopee", store:"HMNS Official Shopee", url:"#", cat:"parfum hmns" },
 ];
 
 function buildUrl(source, title, q){
@@ -98,20 +105,24 @@ function buildUrl(source, title, q){
 }
 
 function isFoodQuery(q){ return /nasi|ayam|bakso|sate|kopi|padang|mie|martabak|burger|gacoan|cupang.*(pakan)?/i.test(q); }
-function isFashionQuery(q){ return /jaket|baju|kaos|sepatu|tas|sneakers|hoodie|bomber|fashion|celana/i.test(q); }
+function isFashionQuery(q){ return /jaket|baju|kaos|sepatu|tas|sneakers|hoodie|bomber|fashion|celana|parfum/i.test(q); }
 function isPhoneQuery(q){ return /hp|iphone|samsung|xiaomi|galaxy|redmi|oppo|vivo|realme/i.test(q); }
 function isLaptopQuery(q){ return /laptop|macbook|thinkpad|vivobook|aspire|pavilion|infinix|asus.*book/i.test(q); }
+function isParfumQuery(q){ return /parfum|perfume|hm|h&m|zara|hmns/i.test(q); }
 function getPriceConfig(q){
   const qq = q.toLowerCase();
-  if(/iphone\s*11/i.test(qq)) return { base: 6200000, step: 280000, jitter: 180000 }; // iPhone 11 5.8-7.2jt
-  if(/iphone\s*15/i.test(qq)) return { base: 13500000, step: 350000, jitter: 200000 }; // iPhone 15 13-14jt
+  if(/parfum.*h&?m/i.test(qq) || /h&?m.*parfum/i.test(qq)) return { base: 260000, step: 25000, jitter: 18000 };
+  if(/parfum.*zara/i.test(qq)) return { base: 400000, step: 30000, jitter: 20000 };
+  if(isParfumQuery(qq)) return { base: 280000, step: 28000, jitter: 18000 };
+  if(/iphone\s*11/i.test(qq)) return { base: 6200000, step: 280000, jitter: 180000 };
+  if(/iphone\s*15/i.test(qq)) return { base: 13500000, step: 350000, jitter: 200000 };
   if(/iphone/i.test(qq)) return { base: 7500000, step: 400000, jitter: 220000 };
   if(/samsung.*a55/i.test(qq)) return { base: 5499000, step: 120000, jitter: 90000 };
   if(/samsung/i.test(qq)) return { base: 5500000, step: 350000, jitter: 180000 };
   if(/xiaomi|redmi/i.test(qq)) return { base: 3200000, step: 180000, jitter: 120000 };
-  if(isLaptopQuery(qq)) return { base: 6500000, step: 850000, jitter: 250000 }; // laptop 6-12jt
+  if(isLaptopQuery(qq)) return { base: 6500000, step: 850000, jitter: 250000 };
   if(isPhoneQuery(qq)) return { base: 4500000, step: 400000, jitter: 200000 };
-  if(isFashionQuery(qq)) return { base: 180000, step: 35000, jitter: 25000 }; // jaket 180-450rb
+  if(isFashionQuery(qq)) return { base: 180000, step: 35000, jitter: 25000 };
   if(isFoodQuery(qq)) return { base: 30000, step: 3500, jitter: 4000 };
   return { base: 250000, step: 40000, jitter: 30000 };
 }
@@ -127,12 +138,16 @@ function generateSynthetic(q){
     variants = ["Paket Hemat", "Komplit", "Spesial", "Family", "Original", "Jumbo", "Porsi Besar", "Pedas Manis"];
   } else if(fashion){
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
-    const fashionVariants = {
-      jaket: ["Hoodie Pria", "Bomber Oversize", "Parka Waterproof", "Varsity", "Jeans Denim", "Windbreaker", "Hoodie Zipper", "Bomber Casual"],
-      default: ["Polos", "Oversize", "Premium", "Casual", "Slim Fit", "Combed 30s", "Distro", "Original"]
-    };
-    const key = /jaket/i.test(q) ? "jaket" : "default";
-    variants = fashionVariants[key];
+    if(isParfumQuery(q)){
+      variants = q.toLowerCase().includes("h&m") || q.toLowerCase().includes("hm") ? ["Venus Eau de Parfum 50ml","Midnight Bloom 50ml","Fleur d'Amour 30ml","Velvet indulgence 50ml"] : q.toLowerCase().includes("zara") ? ["Red Temptation 80ml","Black Amber 100ml","Vibrant Leather 60ml","Floral 50ml"] : ["Eau de Parfum 50ml","Eau de Toilette 30ml","Extrait 100ml","Bloom 50ml"];
+    } else {
+      const fashionVariants = {
+        jaket: ["Hoodie Pria", "Bomber Oversize", "Parka Waterproof", "Varsity", "Jeans Denim", "Windbreaker", "Hoodie Zipper", "Bomber Casual"],
+        default: ["Polos", "Oversize", "Premium", "Casual", "Slim Fit", "Combed 30s", "Distro", "Original"]
+      };
+      const key = /jaket/i.test(q) ? "jaket" : "default";
+      variants = fashionVariants[key];
+    }
   } else if(phone){
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
     variants = ["64GB Garansi Resmi", "128GB Garansi Resmi", "128GB Second Original", "256GB Resmi", "Second Mulus", "New Stock", "Best Seller", "Official"];
@@ -170,12 +185,14 @@ function pickProducts(q){
     const title = p.title.toLowerCase();
     const cat = p.cat.toLowerCase();
     const combined = `${title} ${cat}`;
-    // harus mengandung frasa query atau minimal 1 token bermakna panjang
     if(combined.includes(nq)) return true;
     const hits = useTokens.filter(w => title.includes(w) || cat.includes(w)).length;
-    // untuk "hp iphone 11": butuh iphone (wajib) + hp/11 optional
     if(nq.includes("iphone") && !title.includes("iphone")) return false;
     if(nq.includes("samsung") && !title.includes("samsung") && !cat.includes("samsung")) return false;
+    if(nq.includes("parfum") && !combined.includes("parfum")) return false;
+    if(nq.includes("h&m") || nq.includes("hm") && nq.includes("parfum")){
+      if(!combined.includes("h&m") && !combined.includes("hm") && !combined.includes("h&m")) return false;
+    }
     return hits >= 1 && (useTokens.length===1 || hits >=1);
   });
   // kalau masih >0 tapi banyak yang tidak relevan (headset muncul karena 11), saring lagi: hapus yang hanya match angka
