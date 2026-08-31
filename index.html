@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beligo — Smart Price Comparison</title>
+  <meta name="description" content="Beligo — Bandingkan harga laptop & produk dari Shopee, Tokopedia, Blibli, Lazada. Rekomendasi termurah termahal dengan rating." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#">beligo<span>.</span></a>
+    <nav class="nav-links">
+      <a href="#compare">Compare</a>
+      <a href="#how">Cara Kerja</a>
+      <a href="https://github.com/Anggito09/beligo" target="_blank">GitHub</a>
+    </nav>
+    <span class="badge">MVP · GitHub Pages Ready</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">Price Intelligence · Up-to-date · Multi-Marketplace</div>
+      <h1>Bandingkan harga <span>dari semua marketplace</span> dalam satu search.</h1>
+      <p class="lead">Cari <b>laptop</b> → sistem ambil harga terbaru dari Shopee, Tokopedia, Blibli, Lazada. Otomatis kelompokkan <b>termurah & termahal</b> dengan <b>rating tinggi & rendah</b> biar keputusan lebih cerdas.</p>
+      
+      <div class="search-box" id="compare">
+        <div class="search-input-wrap">
+          <input id="q" type="text" placeholder="Cari produk, mis: laptop, hp, kulkas..." value="laptop" />
+          <button id="btnSearch">Bandingkan →</button>
+        </div>
+        <div class="search-meta">
+          <span id="lastUpdate">Cache: 12 menit lalu</span>
+          <span>·</span>
+          <span id="resultCount">12 produk</span>
+          <span>·</span>
+          <label class="inline"><input type="checkbox" id="liveToggle"> Live fetch (15 menit TTL)</label>
+        </div>
+        <div class="chips">
+          <button class="chip" data-q="laptop">Laptop</button>
+          <button class="chip" data-q="hp samsung">HP Samsung</button>
+          <button class="chip" data-q="kulkas 2 pintu">Kulkas</button>
+          <button class="chip" data-q="headset gaming">Headset</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div><strong id="statMarkets">4</strong><span>Marketplace</span></div>
+        <div><strong id="statProducts">12</strong><span>Produk terindeks</span></div>
+        <div><strong>15m</strong><span>TTL cache</span></div>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="card-head">
+        <span>Live Ranking Preview</span>
+        <span class="dot"></span>
+      </div>
+      <div class="quadrants">
+        <div class="quad best"><b>🏆 Best Value</b><small>Termurah · Rating Tinggi</small><strong id="previewBest">Lenovo IdeaPad — Rp 6.2jt · ⭐ 4.9</strong></div>
+        <div class="quad premium"><b>💎 Premium</b><small>Termahal · Rating Tinggi</small><strong id="previewPremium">MacBook Pro — Rp 28.5jt · ⭐ 4.9</strong></div>
+        <div class="quad risky"><b>⚠️ Risky Cheap</b><small>Termurah · Rating Rendah</small><strong id="previewRisky">Laptop Axioo — Rp 3.1jt · ⭐ 3.2</strong></div>
+        <div class="quad balanced"><b>⚖️ Value Score</b><small>Skor gabungan harga+rating</small><strong id="previewScore">Asus Vivobook — Score 8.7</strong></div>
+      </div>
+      <p class="card-foot">Github Pages = frontend statis. Untuk up-to-date otomatis, hubungkan ke <code>/api</code> (Vercel/Cloudflare) — sudah disiapkan di <code>api/</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="toolbar">
+      <div class="tabs">
+        <button class="tab active" data-filter="all">Semua</button>
+        <button class="tab" data-filter="best">Termurah Rating Tinggi</button>
+        <button class="tab" data-filter="premium">Termahal Rating Tinggi</button>
+        <button class="tab" data-filter="risky">Termurah Rating Rendah</button>
+        <button class="tab" data-filter="value">Value Score</button>
+      </div>
+      <select id="sort">
+        <option value="value_desc">Urut: Value Score Tertinggi</option>
+        <option value="price_asc">Harga: Murah → Mahal</option>
+        <option value="price_desc">Harga: Mahal → Murah</option>
+        <option value="rating_desc">Rating: Tinggi → Rendah</option>
+      </select>
+    </div>
+
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" style="display:none">Tidak ada produk untuk filter ini.</div>
+  </div>
+</section>
+
+<section id="how" class="section section-alt">
+  <div class="container">
+    <div class="section-heading">
+      <div class="eyebrow">Cara Kerja Up-to-Date</div>
+      <h2>GitHub Pages untuk frontend, API terpisah untuk data fresh</h2>
+      <p>GitHub Pages hanya bisa host file statis (HTML/CSS/JS). Scraper butuh Node.js. Jadi arsitektur yang benar:</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span>01</span><div><strong>Frontend di GitHub Pages</strong><small>Repo ini (<code>Anggito09/beligo</code>) → Settings → Pages → Deploy from main branch. Domain: <code>anggito09.github.io/beligo</code></small></div></div>
+      <div class="step"><span>02</span><div><strong>Backend di Vercel / Cloudflare Workers (gratis)</strong><small>Folder <code>/api</code> di repo ini sudah siap. Deploy ke Vercel → jadi <code>beligo.vercel.app/api/search?q=laptop</code>. Frontend fetch ke sana.</small></div></div>
+      <div class="step"><span>03</span><div><strong>Up-to-date: Cron 15 menit + On-Demand</strong><small>Keyword populer di-cron tiap 15m. Keyword sepi di-scrape saat user search. Cache di Redis/Upstash. Market baru tinggal tambah 1 file di <code>api/scrapers/</code>.</small></div></div>
+      <div class="step"><span>04</span><div><strong>Tambah Marketplace Baru</strong><small>Copy <code>api/scrapers/_template.js</code> → isi selector → daftarkan di <code>api/scrapers/index.js</code>. Otomatis ikut ranking.</small></div></div>
+    </div>
+    <div class="callout">
+      <strong>MVP sekarang pakai mock data</strong> biar bisa langsung live di GitHub Pages tanpa backend. Ganti 1 baris di <code>app.js: const USE_MOCK = false</code> setelah backend jadi.
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>© 2026 Beligo — Smart Price Comparison. Dibuat untuk Anggito.</span>
+    <a href="https://github.com/Anggito09/beligo" target="_blank">View on GitHub ↗</a>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

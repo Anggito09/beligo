@@ -1,0 +1,12 @@
+{
+  "name": "beligo",
+  "version": "0.1.0",
+  "description": "Beligo — Smart Price Comparison & Shopping Decision Platform",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve . -l 3000",
+    "scrape": "node api/search.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

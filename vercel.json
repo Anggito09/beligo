@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "api/search.js": { "maxDuration": 15 }
+  },
+  "rewrites": [{ "source": "/api/search", "destination": "/api/search.js" }]
+}
