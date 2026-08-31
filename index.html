@@ -13,12 +13,6 @@
 <header class="nav">
   <div class="container nav-inner">
     <a class="brand" href="#">beligo<span>.</span></a>
-    <nav class="nav-links">
-      <a href="#compare">Compare</a>
-      <a href="#how">Cara Kerja</a>
-      <a href="https://github.com/Anggito09/beligo" target="_blank">GitHub</a>
-    </nav>
-    <span class="badge">MVP · GitHub Pages Ready</span>
   </div>
 </header>
 
@@ -95,24 +89,7 @@
   </div>
 </section>
 
-<section id="how" class="section section-alt">
-  <div class="container">
-    <div class="section-heading">
-      <div class="eyebrow">Cara Kerja Up-to-Date</div>
-      <h2>GitHub Pages untuk frontend, API terpisah untuk data fresh</h2>
-      <p>GitHub Pages hanya bisa host file statis (HTML/CSS/JS). Scraper butuh Node.js. Jadi arsitektur yang benar:</p>
-    </div>
-    <div class="steps">
-      <div class="step"><span>01</span><div><strong>Frontend di GitHub Pages</strong><small>Repo ini (<code>Anggito09/beligo</code>) → Settings → Pages → Deploy from main branch. Domain: <code>anggito09.github.io/beligo</code></small></div></div>
-      <div class="step"><span>02</span><div><strong>Backend di Vercel / Cloudflare Workers (gratis)</strong><small>Folder <code>/api</code> di repo ini sudah siap. Deploy ke Vercel → jadi <code>beligo.vercel.app/api/search?q=laptop</code>. Frontend fetch ke sana.</small></div></div>
-      <div class="step"><span>03</span><div><strong>Up-to-date: Cron 15 menit + On-Demand</strong><small>Keyword populer di-cron tiap 15m. Keyword sepi di-scrape saat user search. Cache di Redis/Upstash. Market baru tinggal tambah 1 file di <code>api/scrapers/</code>.</small></div></div>
-      <div class="step"><span>04</span><div><strong>Tambah Marketplace Baru</strong><small>Copy <code>api/scrapers/_template.js</code> → isi selector → daftarkan di <code>api/scrapers/index.js</code>. Otomatis ikut ranking.</small></div></div>
-    </div>
-    <div class="callout">
-      <strong>MVP sekarang pakai mock data</strong> biar bisa langsung live di GitHub Pages tanpa backend. Ganti 1 baris di <code>app.js: const USE_MOCK = false</code> setelah backend jadi.
-    </div>
-  </div>
-</section>
+
 
 <footer class="footer">
   <div class="container footer-inner">
