@@ -9,6 +9,11 @@ const cache = new Map();
 const TTL_MS = 15 * 60 * 1000;
 
 const ALL_PRODUCTS = [
+  // nasi padang khusus
+  { title:"Nasi Padang Ayam Pop + Rendang + Sayur", price:38000, rating:4.8, sold:7200, source:"GrabFood", url:"#", cat:"nasi padang makanan" },
+  { title:"Nasi Padang Rendang Sapi Komplit", price:42000, rating:4.7, sold:5400, source:"GoFood", url:"#", cat:"nasi padang" },
+  { title:"Nasi Padang Paket Hemat Ayam + Telur", price:32000, rating:4.6, sold:6100, source:"ShopeeFood", url:"#", cat:"nasi padang" },
+  { title:"Nasi Padang Gulai Tunjang + Nasi", price:45000, rating:4.7, sold:3100, source:"GrabFood", url:"#", cat:"nasi padang" },
   // laptop
   { title:"Lenovo IdeaPad Slim 3 14 - Ryzen 5 8GB 512GB", price:6200000, rating:4.9, sold:2400, source:"Tokopedia", url:"#", cat:"laptop" },
   { title:"Asus Vivobook 14 A1402 - i5 13th Gen 8GB", price:7400000, rating:4.8, sold:1800, source:"Shopee", url:"#", cat:"laptop" },
@@ -80,6 +85,23 @@ function buildUrl(source, title, q){
   return map[source] || `https://www.google.com/search?q=${kw}`;
 }
 
+function generateSynthetic(q){
+  const caps = q.split(/\s+/).map(w=> w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  const sources = ["Shopee","Tokopedia","Blibli","Lazada","GrabFood","GoFood"];
+  const variants = ["Paket Hemat", "Original", "Premium", "Spesial", "Komplit", "Family"];
+  return sources.map((src,i)=>{
+    const variant = variants[i % variants.length];
+    const title = `${caps} ${variant} ${i+1}`;
+    const isFood = ["GrabFood","GoFood","ShopeeFood"].includes(src) || /nasi|ayam|bakso|sate|kopi|padang|mie|burger|martabak|ikan/i.test(q);
+    const base = isFood ? 25000 + (i*8000) : 80000 + (i*150000);
+    const price = base + Math.round((Math.random()-0.5)* (isFood? 12000 : 80000));
+    const rating = +(4.4 + Math.random()*0.5).toFixed(1);
+    const sold = 800 + Math.floor(Math.random()*5000);
+    const cat = q.toLowerCase();
+    return { title, price: Math.max(9000, price), rating, sold, source: src, cat, url: buildUrl(src, title, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
+  });
+}
+
 function pickProducts(q){
   const nq = q.toLowerCase();
   const tokens = nq.split(/\s+/).filter(Boolean);
@@ -87,17 +109,26 @@ function pickProducts(q){
   if(filtered.length===0){
     filtered = ALL_PRODUCTS.filter(p => tokens.slice(0,1).some(w => p.title.toLowerCase().includes(w)));
   }
-  if(filtered.length===0) return [];
+  if(filtered.length===0){
+    // scrapping synthetic: generate produk sesuai query biar tampil banyak & sesuai
+    const synth = generateSynthetic(q);
+    return synth.sort((a,b)=>b.valueScore-a.valueScore);
+  }
   const isFood = filtered.some(p => ["GrabFood","GoFood","ShopeeFood"].includes(p.source));
   const jitter = () => Math.round((Math.random()-0.5)*(isFood? 6000 : 120000));
-  // ranking: yang mengandung semua token di atas
   const scored = filtered.map(p=>{
     const title = p.title.toLowerCase();
     const cat = p.cat.toLowerCase();
     const hits = tokens.filter(t=> title.includes(t) || cat.includes(t)).length;
     return { p, hits };
   }).sort((a,b)=> b.hits - a.hits || b.p.rating - a.p.rating);
-  return scored.map(({p})=>({ ...p, url: buildUrl(p.source, p.title, q), price: Math.max(9000, p.price + jitter()), updatedAt: new Date().toISOString(), valueScore: p.rating*2 - (p.price/50000000)*4 + 2 })).sort((a,b)=>b.valueScore-a.valueScore);
+  let results = scored.map(({p})=>({ ...p, url: buildUrl(p.source, p.title, q), price: Math.max(9000, p.price + jitter()), updatedAt: new Date().toISOString(), valueScore: p.rating*2 - (p.price/50000000)*4 + 2 })).sort((a,b)=>b.valueScore-a.valueScore);
+  // jika hasil <6, tambah synthetic biar tampil banyak
+  if(results.length < 6){
+    const synth = generateSynthetic(q).slice(0, 6 - results.length);
+    results = [...results, ...synth].sort((a,b)=>b.valueScore-a.valueScore);
+  }
+  return results;
 }
 
 export default async function handler(req, res) {
