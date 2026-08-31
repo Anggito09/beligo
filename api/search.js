@@ -9,10 +9,10 @@ const cache = new Map();
 const TTL_MS = 15 * 60 * 1000;
 
 const STORES = {
-  Shopee: ["Shopee Mall - Official", "Erigo Official Store", "Eiger Official", "Cupang Gallery Official"],
-  Tokopedia: ["Tokopedia Official Store", "Eiger Official", "Samsung Official Store", "Aquarium Hobi Official"],
-  Blibli: ["Blibli Official Store", "Samsung Official", "Nike Official Store", "Eiger Blibli"],
-  Lazada: ["Lazada Flagship Store", "Samsung LazMall", "Lazada Home Appliances"],
+  Shopee: ["Mykonos Official Store Shopee", "H&M Beauty Official Shopee", "Zara Beauty Official Shopee", "Erigo Official Store"],
+  Tokopedia: ["Mykonos Official Tokopedia", "H&M Official Tokopedia", "Zara Official Tokopedia", "Eiger Official"],
+  Blibli: ["Mykonos Blibli Official", "H&M Blibli Official", "Zara Blibli Official", "Eiger Blibli"],
+  Lazada: ["Mykonos LazMall Official", "H&M LazMall", "Zara LazMall", "Lazada Flagship Store"],
   GrabFood: ["Warung Padang Sederhana", "Ayam Geprek Bensu - GrabFood", "Kopi Janji Jiwa GrabFood"],
   GoFood: ["RM Padang Sederhana GoFood", "Bakso Malang Cak Man GoFood", "Sate Taichan GoFood"],
   ShopeeFood: ["Nasi Goreng 88 ShopeeFood", "Martabak Pecenongan ShopeeFood", "Burger King ShopeeFood"],
@@ -77,13 +77,17 @@ const ALL_PRODUCTS = [
   { title:"Sepatu Sneakers Nike Air Jordan 1 Low", price:1299000, rating:4.8, sold:3400, source:"Tokopedia", store:"Nike Official Store Tokopedia", url:"#", cat:"sepatu sneakers" },
   { title:"Kaos Polos Cotton Combed 30s", price:45000, rating:4.6, sold:15000, source:"Shopee", store:"Erigo Store Shopee", url:"#", cat:"baju kaos fashion" },
   { title:"Tas Ransel Eiger Pria Waterproof", price:399000, rating:4.7, sold:2100, source:"Blibli", store:"Eiger Blibli Official", url:"#", cat:"tas ransel" },
-  // parfum — brand H&M, Zara, dll
+  // parfum — brand H&M, Zara, Mykonos, HMNS
   { title:"Parfum H&M Venus Eau de Parfum 50ml", price:299000, rating:4.7, sold:2100, source:"Shopee", store:"H&M Beauty Official Shopee", url:"#", cat:"parfum h&m" },
   { title:"Parfum H&M Midnight Bloom 50ml", price:279000, rating:4.6, sold:1800, source:"Tokopedia", store:"H&M Official Tokopedia", url:"#", cat:"parfum h&m" },
   { title:"Parfum H&M Fleur d'Amour 30ml", price:199000, rating:4.5, sold:1200, source:"Blibli", store:"H&M Blibli Official", url:"#", cat:"parfum h&m" },
   { title:"Parfum Zara Red Temptation 80ml", price:459000, rating:4.8, sold:3400, source:"Shopee", store:"Zara Beauty Official Shopee", url:"#", cat:"parfum zara" },
   { title:"Parfum Zara Black Amber 100ml", price:399000, rating:4.7, sold:2100, source:"Tokopedia", store:"Zara Official Tokopedia", url:"#", cat:"parfum zara" },
   { title:"Parfum HMNS Farhampton 100ml", price:329000, rating:4.8, sold:2800, source:"Shopee", store:"HMNS Official Shopee", url:"#", cat:"parfum hmns" },
+  { title:"Parfum Mykonos Rich Eau de Parfum 50ml", price:285000, rating:4.8, sold:4200, source:"Shopee", store:"Mykonos Official Store Shopee", url:"#", cat:"parfum mykonos" },
+  { title:"Parfum Mykonos Unleashed 50ml", price:275000, rating:4.7, sold:3100, source:"Tokopedia", store:"Mykonos Official Tokopedia", url:"#", cat:"parfum mykonos" },
+  { title:"Parfum Mykonos Empress 50ml", price:295000, rating:4.7, sold:2600, source:"Blibli", store:"Mykonos Blibli Official", url:"#", cat:"parfum mykonos" },
+  { title:"Parfum Mykonos Liberty 50ml", price:265000, rating:4.6, sold:1900, source:"Lazada", store:"Mykonos LazMall Official", url:"#", cat:"parfum mykonos" },
 ];
 
 function buildUrl(source, title, q){
@@ -108,9 +112,10 @@ function isFoodQuery(q){ return /nasi|ayam|bakso|sate|kopi|padang|mie|martabak|b
 function isFashionQuery(q){ return /jaket|baju|kaos|sepatu|tas|sneakers|hoodie|bomber|fashion|celana|parfum/i.test(q); }
 function isPhoneQuery(q){ return /hp|iphone|samsung|xiaomi|galaxy|redmi|oppo|vivo|realme/i.test(q); }
 function isLaptopQuery(q){ return /laptop|macbook|thinkpad|vivobook|aspire|pavilion|infinix|asus.*book/i.test(q); }
-function isParfumQuery(q){ return /parfum|perfume|hm|h&m|zara|hmns/i.test(q); }
+function isParfumQuery(q){ return /parfum|perfume|hm|h&m|zara|hmns|mykonos/i.test(q); }
 function getPriceConfig(q){
   const qq = q.toLowerCase();
+  if(/mykonos/i.test(qq)) return { base: 275000, step: 18000, jitter: 15000 };
   if(/parfum.*h&?m/i.test(qq) || /h&?m.*parfum/i.test(qq)) return { base: 260000, step: 25000, jitter: 18000 };
   if(/parfum.*zara/i.test(qq)) return { base: 400000, step: 30000, jitter: 20000 };
   if(isParfumQuery(qq)) return { base: 280000, step: 28000, jitter: 18000 };
@@ -139,7 +144,8 @@ function generateSynthetic(q){
   } else if(fashion){
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
     if(isParfumQuery(q)){
-      variants = q.toLowerCase().includes("h&m") || q.toLowerCase().includes("hm") ? ["Venus Eau de Parfum 50ml","Midnight Bloom 50ml","Fleur d'Amour 30ml","Velvet indulgence 50ml"] : q.toLowerCase().includes("zara") ? ["Red Temptation 80ml","Black Amber 100ml","Vibrant Leather 60ml","Floral 50ml"] : ["Eau de Parfum 50ml","Eau de Toilette 30ml","Extrait 100ml","Bloom 50ml"];
+      if(/mykonos/i.test(q)) variants = ["Rich Eau de Parfum 50ml","Unleashed 50ml","Empress 50ml","Liberty 50ml","Stronger 50ml","Brave 50ml"];
+      else variants = q.toLowerCase().includes("h&m") || q.toLowerCase().includes("hm") ? ["Venus Eau de Parfum 50ml","Midnight Bloom 50ml","Fleur d'Amour 30ml","Velvet indulgence 50ml"] : q.toLowerCase().includes("zara") ? ["Red Temptation 80ml","Black Amber 100ml","Vibrant Leather 60ml","Floral 50ml"] : ["Eau de Parfum 50ml","Eau de Toilette 30ml","Extrait 100ml","Bloom 50ml"];
     } else {
       const fashionVariants = {
         jaket: ["Hoodie Pria", "Bomber Oversize", "Parka Waterproof", "Varsity", "Jeans Denim", "Windbreaker", "Hoodie Zipper", "Bomber Casual"],
