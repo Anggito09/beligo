@@ -17,8 +17,21 @@ const MOCK = [
 
 const $ = s => document.querySelector(s);
 let state = { q:"laptop", filter:"all", sort:"value_desc", data:[...MOCK] };
+let isLoading = false;
 
 function formatRp(n){ return "Rp " + n.toLocaleString("id-ID"); }
+function setLoading(v){
+  isLoading = v;
+  const btn = $("#btnSearch");
+  if(!btn) return;
+  btn.disabled = v;
+  btn.textContent = v ? "Memuat..." : "Bandingkan →";
+  btn.classList.toggle("loading", v);
+  $("#grid")?.classList.toggle("loading", v);
+}
+function skeletonHTML(n=6){
+  return Array.from({length:n}).map(()=>`<article class="card skeleton" aria-hidden="true"><div class="sk-line w-60"></div><div class="sk-line"></div><div class="sk-line w-80"></div><div class="sk-block"></div></article>`).join("");
+}
 function valueScore(p){
   const maxPrice = Math.max(...state.data.map(x=>x.price));
   // rating 0-5 -> 0-10, price normalized 0-10 -> score 0-10
@@ -43,20 +56,28 @@ function filtered(){
 }
 function render(){
   const list = filtered();
+  const grid = $("#grid");
   $("#resultCount").textContent = list.length + " produk";
   $("#statProducts").textContent = list.length;
-  $("#grid").innerHTML = list.map(p=>{
-    const score = valueScore(p);
-    const badge = score>=7 ? "Best Value" : score>=5 ? "Good" : score>=3 ? "Fair" : "Low";
-    return `<article class="card">
-      <div class="card-top"><span class="source">${p.source}</span><span class="price">${formatRp(p.price)}</span></div>
-      <h3>${p.title}</h3>
-      <div class="meta"><span>⭐ ${p.rating.toFixed(1)}</span><span>· ${p.sold.toLocaleString("id-ID")} terjual</span><span>· update ${new Date(p.updatedAt).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</span></div>
-      <div class="score"><b>Value ${score} — ${badge}</b><small>rating & harga</small></div>
-      <a href="${p.url}" target="_blank" rel="noreferrer">Lihat di ${p.source} ↗</a>
-    </article>`;
-  }).join("");
-  $("#empty").style.display = list.length? "none":"block";
+  if(list.length===0){
+    grid.innerHTML = "";
+    $("#empty").style.display = "block";
+    $("#empty").innerHTML = `<div class="empty-icon">🔍</div><strong>Tidak ada produk untuk filter ini</strong><small>Coba ganti filter atau kata kunci lain.</small>`;
+  } else {
+    $("#empty").style.display = "none";
+    grid.innerHTML = list.map((p,i)=>{
+      const score = valueScore(p);
+      const badge = score>=7 ? "Best Value" : score>=5 ? "Good" : score>=3 ? "Fair" : "Low";
+      const updated = p.updatedAt ? new Date(p.updatedAt).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) : "--:--";
+      return `<article class="card" style="animation-delay:${(i*45)}ms">
+        <div class="card-top"><span class="source">${p.source}</span><span class="price">${formatRp(p.price)}</span></div>
+        <h3>${p.title}</h3>
+        <div class="meta"><span>⭐ ${p.rating.toFixed(1)}</span><span>· ${p.sold.toLocaleString("id-ID")} terjual</span><span>· update ${updated}</span></div>
+        <div class="score"><b>Value ${score} — ${badge}</b><small>rating & harga</small></div>
+        <a href="${p.url}" target="_blank" rel="noreferrer">Lihat di ${p.source} ↗</a>
+      </article>`;
+    }).join("");
+  }
   // preview quadrants
   const best = [...state.data].filter(p=>p.rating>=4.6).sort((a,b)=>a.price-b.price)[0];
   const premium = [...state.data].filter(p=>p.rating>=4.7).sort((a,b)=>b.price-a.price)[0];
@@ -69,49 +90,71 @@ function render(){
 }
 
 async function fetchLive(q){
+  if(isLoading) return;
+  setLoading(true);
   if(USE_MOCK){
-    // simulasi delay live fetch
     $("#lastUpdate").textContent = "Mengambil data terbaru...";
-    await new Promise(r=>setTimeout(r,700));
-    state.data = MOCK.map(x=>({...x, price: x.price + Math.round((Math.random()-0.5)*200000)}));
+    $("#grid").innerHTML = skeletonHTML(6);
+    await new Promise(r=>setTimeout(r,650));
+    state.data = MOCK.map(x=>({...x, price: x.price + Math.round((Math.random()-0.5)*200000), updatedAt: new Date().toISOString()}));
     $("#lastUpdate").textContent = "Cache: baru saja (mock)";
+    setLoading(false);
     render();
     return;
   }
   try{
     $("#lastUpdate").textContent = "Fetching live...";
+    $("#grid").innerHTML = skeletonHTML(6);
     const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
-    if(!res.ok) throw new Error(res.status);
+    if(!res.ok) throw new Error(res.status + " " + res.statusText);
     const json = await res.json();
-    // normalisasi updatedAt jika tidak ada
-    state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString() }));
+    state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString(), sold: p.sold ?? Math.floor(Math.random()*3000) }));
     if(state.data.length===0) throw new Error("empty");
-    $("#lastUpdate").textContent = `Live: ${json.cached ? "cache 15 Menit" : "fresh"} · ${json.sources ? json.sources.join(", ") : "vercel"}`;
+    const age = json.ageMs ? ` · ${(json.ageMs/60000).toFixed(1)}m ago` : "";
+    $("#lastUpdate").textContent = `Live: ${json.cached ? "cache 15 Menit" + age : "fresh"} · ${json.sources ? json.sources.join(", ") : "vercel"}`;
+    if(json.sources) { const el=$("#statMarkets"); if(el) el.textContent = json.sources.length; }
+    setLoading(false);
     render();
   }catch(e){
     $("#lastUpdate").textContent = "Gagal fetch live, pakai cache mock";
-    state.data = MOCK.map(x=>({...x, price: x.price + Math.round((Math.random()-0.5)*100000)}));
+    state.data = MOCK.map(x=>({...x, price: x.price + Math.round((Math.random()-0.5)*100000), updatedAt: new Date().toISOString()}));
+    setLoading(false);
     render();
   }
 }
 
+function setChipActive(q){
+  document.querySelectorAll(".chip").forEach(c=> c.classList.toggle("active", c.dataset.q===q));
+}
 $("#btnSearch").addEventListener("click", ()=>{
   state.q = $("#q").value.trim() || "laptop";
+  setChipActive(state.q);
   if($("#liveToggle").checked) fetchLive(state.q);
   else render();
 });
 $("#q").addEventListener("keydown", e=>{ if(e.key==="Enter") $("#btnSearch").click(); });
+$("#q").addEventListener("input", e=>{
+  const v = e.target.value.trim().toLowerCase();
+  setChipActive(v);
+});
 document.querySelectorAll(".chip").forEach(c=> c.addEventListener("click", ()=>{
   $("#q").value = c.dataset.q; state.q = c.dataset.q;
+  setChipActive(state.q);
   if($("#liveToggle").checked) fetchLive(state.q); else render();
 }));
 document.querySelectorAll(".tab").forEach(t=> t.addEventListener("click", ()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   t.classList.add("active");
   state.filter = t.dataset.filter;
+  // subtle toolbar pulse
+  document.querySelector(".toolbar")?.classList.add("pulse");
+  setTimeout(()=>document.querySelector(".toolbar")?.classList.remove("pulse"), 400);
   render();
 }));
 $("#sort").addEventListener("change", e=>{ state.sort = e.target.value; render(); });
+$("#liveToggle").addEventListener("change", e=>{
+  if(e.target.checked) fetchLive(state.q);
+});
 
 render();
 if(!USE_MOCK){
