@@ -1,4 +1,5 @@
-const USE_MOCK = true; // ganti false saat backend /api sudah live
+const API_URL = "https://beligo-jet.vercel.app/api/search";
+const USE_MOCK = false; // live via Vercel
 const MOCK = [
   {id:1, title:"Lenovo IdeaPad Slim 3 14 - Ryzen 5 8GB 512GB", price:6200000, rating:4.9, sold:2400, source:"Tokopedia", url:"#", updatedAt:"2026-09-01T06:00:00Z"},
   {id:2, title:"Asus Vivobook 14 A1402 - i5 13th Gen", price:7400000, rating:4.8, sold:1800, source:"Shopee", url:"#", updatedAt:"2026-09-01T06:02:00Z"},
@@ -78,14 +79,18 @@ async function fetchLive(q){
     return;
   }
   try{
-    $("#lastUpdate").textContent = "Fetching /api/search...";
-    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+    $("#lastUpdate").textContent = "Fetching live...";
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+    if(!res.ok) throw new Error(res.status);
     const json = await res.json();
-    state.data = json.products;
-    $("#lastUpdate").textContent = `Cache: baru saja · ${json.cached ? "cache" : "live"}`;
+    // normalisasi updatedAt jika tidak ada
+    state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString() }));
+    if(state.data.length===0) throw new Error("empty");
+    $("#lastUpdate").textContent = `Live: ${json.cached ? "cache 15m" : "fresh"} · ${json.sources ? json.sources.join(", ") : "vercel"}`;
     render();
   }catch(e){
     $("#lastUpdate").textContent = "Gagal fetch live, pakai cache mock";
+    state.data = MOCK.map(x=>({...x, price: x.price + Math.round((Math.random()-0.5)*100000)}));
     render();
   }
 }
@@ -109,3 +114,8 @@ document.querySelectorAll(".tab").forEach(t=> t.addEventListener("click", ()=>{
 $("#sort").addEventListener("change", e=>{ state.sort = e.target.value; render(); });
 
 render();
+if(!USE_MOCK){
+  fetchLive(state.q);
+  const t = document.getElementById("liveToggle");
+  if(t) t.checked = true;
+}
