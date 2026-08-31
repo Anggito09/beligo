@@ -1,0 +1,20 @@
+name: Warm Beligo Cache (15 Menit)
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit API populer biar cache fresh 15 Menit
+        run: |
+          set -e
+          for q in "laptop" "hp%20samsung" "kulkas%202%20pintu" "headset%20gaming"; do
+            echo "Warming q=$q"
+            curl -sS "https://beligo-jet.vercel.app/api/search?q=$q" | head -c 500
+            echo ""
+          done
+          echo "Done warm 15 Menit TTL"

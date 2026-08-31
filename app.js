@@ -86,7 +86,7 @@ async function fetchLive(q){
     // normalisasi updatedAt jika tidak ada
     state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString() }));
     if(state.data.length===0) throw new Error("empty");
-    $("#lastUpdate").textContent = `Live: ${json.cached ? "cache 15m" : "fresh"} · ${json.sources ? json.sources.join(", ") : "vercel"}`;
+    $("#lastUpdate").textContent = `Live: ${json.cached ? "cache 15 Menit" : "fresh"} · ${json.sources ? json.sources.join(", ") : "vercel"}`;
     render();
   }catch(e){
     $("#lastUpdate").textContent = "Gagal fetch live, pakai cache mock";
