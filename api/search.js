@@ -99,15 +99,32 @@ function buildUrl(source, title, q){
 
 function isFoodQuery(q){ return /nasi|ayam|bakso|sate|kopi|padang|mie|martabak|burger|gacoan|cupang.*(pakan)?/i.test(q); }
 function isFashionQuery(q){ return /jaket|baju|kaos|sepatu|tas|sneakers|hoodie|bomber|fashion|celana/i.test(q); }
+function isPhoneQuery(q){ return /hp|iphone|samsung|xiaomi|galaxy|redmi|oppo|vivo|realme/i.test(q); }
+function isLaptopQuery(q){ return /laptop|macbook|thinkpad|vivobook|aspire|pavilion|infinix|asus.*book/i.test(q); }
+function getPriceConfig(q){
+  const qq = q.toLowerCase();
+  if(/iphone\s*11/i.test(qq)) return { base: 6200000, step: 280000, jitter: 180000 }; // iPhone 11 5.8-7.2jt
+  if(/iphone\s*15/i.test(qq)) return { base: 13500000, step: 350000, jitter: 200000 }; // iPhone 15 13-14jt
+  if(/iphone/i.test(qq)) return { base: 7500000, step: 400000, jitter: 220000 };
+  if(/samsung.*a55/i.test(qq)) return { base: 5499000, step: 120000, jitter: 90000 };
+  if(/samsung/i.test(qq)) return { base: 5500000, step: 350000, jitter: 180000 };
+  if(/xiaomi|redmi/i.test(qq)) return { base: 3200000, step: 180000, jitter: 120000 };
+  if(isLaptopQuery(qq)) return { base: 6500000, step: 850000, jitter: 250000 }; // laptop 6-12jt
+  if(isPhoneQuery(qq)) return { base: 4500000, step: 400000, jitter: 200000 };
+  if(isFashionQuery(qq)) return { base: 180000, step: 35000, jitter: 25000 }; // jaket 180-450rb
+  if(isFoodQuery(qq)) return { base: 30000, step: 3500, jitter: 4000 };
+  return { base: 250000, step: 40000, jitter: 30000 };
+}
 function generateSynthetic(q){
   const caps = q.split(/\s+/).map(w=> w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
   const food = isFoodQuery(q);
   const fashion = isFashionQuery(q);
-  let sources, variants, basePrice;
+  const phone = isPhoneQuery(q);
+  const laptop = isLaptopQuery(q);
+  let sources, variants;
   if(food){
     sources = ["GrabFood","GoFood","ShopeeFood","Shopee","Tokopedia","Blibli","Lazada"];
     variants = ["Paket Hemat", "Komplit", "Spesial", "Family", "Original", "Jumbo", "Porsi Besar", "Pedas Manis"];
-    basePrice = 28000;
   } else if(fashion){
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
     const fashionVariants = {
@@ -116,27 +133,30 @@ function generateSynthetic(q){
     };
     const key = /jaket/i.test(q) ? "jaket" : "default";
     variants = fashionVariants[key];
-    basePrice = 150000;
+  } else if(phone){
+    sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
+    variants = ["64GB Garansi Resmi", "128GB Garansi Resmi", "128GB Second Original", "256GB Resmi", "Second Mulus", "New Stock", "Best Seller", "Official"];
+  } else if(laptop){
+    sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
+    variants = ["i5 8GB 512GB", "Ryzen 5 8GB", "i3 8GB", "RTX 3050", "M2 256GB", "M3 Pro", "i7 16GB", "Gaming"];
   } else {
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia"];
     variants = ["Original", "Premium", "Pro", "Spesial", "Garansi Resmi", "Second Original", "New Stock", "Best Seller", "Official", "Limited"];
-    basePrice = 120000;
   }
-  // generate 20-24 produk biar tampil banyak & real-feel
+  const priceCfg = getPriceConfig(q);
   const count = food ? 18 : 24;
   return Array.from({length: count}, (_,i)=>{
     const src = sources[i % sources.length];
     const variant = variants[i % variants.length];
-    const title = `${caps} ${variant} ${i < variants.length ? '' : `#${i+1}`}`.trim();
-    const isFoodSrc = ["GrabFood","GoFood","ShopeeFood"].includes(src);
-    const priceBase = isFoodSrc ? 26000 + (i*3500) : fashion ? 120000 + (i*25000) : 80000 + (i*35000);
-    // harga real range: hp 3-15jt, laptop 3-28jt, jaket 80-600rb, nasi 25-50rb
-    const price = priceBase + Math.round((Math.random()-0.5)* (isFoodSrc? 6000 : fashion? 30000 : 60000));
-    const rating = +(4.3 + Math.random()*0.6).toFixed(1);
-    const sold = 500 + Math.floor(Math.random()*8000);
+    const title = `${caps} ${variant}`.trim();
+    const titleUniq = i >= variants.length ? `${title} ${i+1}` : title;
+    const priceBase = priceCfg.base + (i * priceCfg.step * 0.35);
+    const price = priceBase + Math.round((Math.random()-0.5)* priceCfg.jitter);
+    const rating = +(4.5 + Math.random()*0.4).toFixed(1);
+    const sold = 1200 + Math.floor(Math.random()*4000);
     const cat = q.toLowerCase();
     const store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
-    return { title, price: Math.max(9000, price), rating, sold, source: src, store, cat, url: buildUrl(src, title, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
+    return { title: titleUniq, price: Math.max(9000, Math.round(price/1000)*1000), rating, sold, source: src, store, cat, url: buildUrl(src, titleUniq, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
   });
 }
 
