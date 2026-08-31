@@ -15,20 +15,7 @@ Platform pembanding harga multi-marketplace untuk membantu pembeli menemukan ops
 - Backend: Vercel Serverless Function (`/api/search`) dengan cache 15 menit
 - Scraper modular di `api/scrapers/` — tambah marketplace cukup duplikasi template
 
-## Menjalankan Lokal
-```bash
-npx serve . -l 3000
-# atau
-npm run dev
-```
-
 ## Deploy
 - Frontend otomatis via GitHub Pages (branch `main`)
 - Backend deploy ke Vercel: import repository → deploy
 
-## Contributors
-- Anggito — [@Anggito09](https://github.com/Anggito09)
-- AndoZR — [@AndoZR](https://github.com/AndoZR)
-
-## Lisensi
-MIT
