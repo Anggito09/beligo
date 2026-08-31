@@ -110,9 +110,9 @@ async function fetchLive(q){
     const json = await res.json();
     state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString(), sold: p.sold ?? Math.floor(Math.random()*3000) }));
     if(state.data.length===0) throw new Error("empty");
-    const age = json.ageMs ? ` · ${(json.ageMs/60000).toFixed(1)}m ago` : "";
-    $("#lastUpdate").textContent = `Live: ${json.cached ? "cache 15 Menit" + age : "fresh"} · ${json.sources ? json.sources.join(", ") : "vercel"}`;
-    if(json.sources) { const el=$("#statMarkets"); if(el) el.textContent = json.sources.length; }
+    const marketCount = json.sources ? json.sources.length : 4;
+    $("#lastUpdate").textContent = json.cached ? `Sinkron • ${marketCount} marketplace • Update 15 Menit` : `Live • ${marketCount} marketplace aktif`;
+    if(json.sources) { const el=$("#statMarkets"); if(el) el.textContent = marketCount; }
     setLoading(false);
     render();
   }catch(e){
