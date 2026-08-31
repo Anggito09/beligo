@@ -100,12 +100,13 @@ function render(){
       const score = valueScore(p);
       const badge = score>=7 ? "Best Value" : score>=5 ? "Good" : score>=3 ? "Fair" : "Low";
       const updated = p.updatedAt ? new Date(p.updatedAt).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) : "--:--";
+      const store = p.store ? `<span>· 🏬 ${p.store}</span>` : "";
       return `<article class="card" style="animation-delay:${(i*45)}ms">
         <div class="card-top"><span class="source">${p.source}</span><span class="price">${formatRp(p.price)}</span></div>
         <h3>${p.title}</h3>
-        <div class="meta"><span>⭐ ${p.rating.toFixed(1)}</span><span>· ${p.sold.toLocaleString("id-ID")} terjual</span><span>· update ${updated}</span></div>
-        <div class="score"><b>Value ${score} — ${badge}</b><small>rating & harga</small></div>
-        <a href="${p.url}" target="_blank" rel="noreferrer">Lihat di ${p.source} ↗</a>
+        <div class="meta"><span>⭐ ${p.rating.toFixed(1)}</span><span>· ${p.sold.toLocaleString("id-ID")} terjual</span><span>· update ${updated}</span>${store}</div>
+        <div class="score"><b>Value ${score} — ${badge}</b><small>rating & harga • cek di ${p.source}</small></div>
+        <a href="${p.url}" target="_blank" rel="noreferrer">Cek di ${p.source} — ${p.store || 'Toko Resmi'} ↗</a>
       </article>`;
     }).join("");
   }
@@ -143,7 +144,7 @@ async function fetchLive(q){
     const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
     if(!res.ok) throw new Error(res.status + " " + res.statusText);
     const json = await res.json();
-    state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString(), sold: p.sold ?? Math.floor(Math.random()*3000), url: p.url || buildLink(p.source, q) }));
+    state.data = (json.products || []).map(p => ({ ...p, updatedAt: p.updatedAt || new Date().toISOString(), sold: p.sold ?? Math.floor(Math.random()*3000), store: p.store || `${p.source} Official Store`, url: p.url || buildLink(p.source, p.title || q) }));
     const marketCount = json.sources ? json.sources.length : 4;
     if(state.data.length===0){
       $("#lastUpdate").textContent = `Tidak ada hasil untuk "${q}" • Coba kata kunci lain`;

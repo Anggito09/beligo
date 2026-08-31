@@ -8,63 +8,75 @@ import { marketplaces } from "./scrapers/index.js";
 const cache = new Map();
 const TTL_MS = 15 * 60 * 1000;
 
+const STORES = {
+  Shopee: ["Shopee Mall - Official", "Erigo Official Store", "Eiger Official", "Cupang Gallery Official"],
+  Tokopedia: ["Tokopedia Official Store", "Eiger Official", "Samsung Official Store", "Aquarium Hobi Official"],
+  Blibli: ["Blibli Official Store", "Samsung Official", "Nike Official Store", "Eiger Blibli"],
+  Lazada: ["Lazada Flagship Store", "Samsung LazMall", "Lazada Home Appliances"],
+  GrabFood: ["Warung Padang Sederhana", "Ayam Geprek Bensu - GrabFood", "Kopi Janji Jiwa GrabFood"],
+  GoFood: ["RM Padang Sederhana GoFood", "Bakso Malang Cak Man GoFood", "Sate Taichan GoFood"],
+  ShopeeFood: ["Nasi Goreng 88 ShopeeFood", "Martabak Pecenongan ShopeeFood", "Burger King ShopeeFood"],
+};
+
 const ALL_PRODUCTS = [
   // nasi padang khusus
-  { title:"Nasi Padang Ayam Pop + Rendang + Sayur", price:38000, rating:4.8, sold:7200, source:"GrabFood", url:"#", cat:"nasi padang makanan" },
-  { title:"Nasi Padang Rendang Sapi Komplit", price:42000, rating:4.7, sold:5400, source:"GoFood", url:"#", cat:"nasi padang" },
-  { title:"Nasi Padang Paket Hemat Ayam + Telur", price:32000, rating:4.6, sold:6100, source:"ShopeeFood", url:"#", cat:"nasi padang" },
-  { title:"Nasi Padang Gulai Tunjang + Nasi", price:45000, rating:4.7, sold:3100, source:"GrabFood", url:"#", cat:"nasi padang" },
+  { title:"Nasi Padang Ayam Pop + Rendang + Sayur", price:38000, rating:4.8, sold:7200, source:"GrabFood", store:"Warung Padang Sederhana", url:"#", cat:"nasi padang makanan" },
+  { title:"Nasi Padang Rendang Sapi Komplit", price:42000, rating:4.7, sold:5400, source:"GoFood", store:"RM Padang Sederhana GoFood", url:"#", cat:"nasi padang" },
+  { title:"Nasi Padang Paket Hemat Ayam + Telur", price:32000, rating:4.6, sold:6100, source:"ShopeeFood", store:"Nasi Goreng 88 ShopeeFood", url:"#", cat:"nasi padang" },
+  { title:"Nasi Padang Gulai Tunjang + Nasi", price:45000, rating:4.7, sold:3100, source:"GrabFood", store:"Warung Padang Sederhana", url:"#", cat:"nasi padang" },
   // laptop
-  { title:"Lenovo IdeaPad Slim 3 14 - Ryzen 5 8GB 512GB", price:6200000, rating:4.9, sold:2400, source:"Tokopedia", url:"#", cat:"laptop" },
-  { title:"Asus Vivobook 14 A1402 - i5 13th Gen 8GB", price:7400000, rating:4.8, sold:1800, source:"Shopee", url:"#", cat:"laptop" },
-  { title:"Acer Aspire 5 Slim - i3 1215U 8GB", price:5800000, rating:4.6, sold:900, source:"Blibli", url:"#", cat:"laptop" },
-  { title:"HP 14s - Ryzen 5 7520U 8GB", price:6950000, rating:4.7, sold:1100, source:"Lazada", url:"#", cat:"laptop" },
-  { title:"Axioo Hype 5 X5 - Ryzen 5 8GB", price:3100000, rating:3.2, sold:320, source:"Shopee", url:"#", cat:"laptop" },
-  { title:"Advan Workplus - Ryzen 5 6600H 16GB", price:6400000, rating:4.8, sold:2100, source:"Tokopedia", url:"#", cat:"laptop" },
-  { title:"MacBook Air M2 256GB - Midnight", price:15999000, rating:4.9, sold:850, source:"Blibli", url:"#", cat:"laptop" },
-  { title:"MacBook Pro 14 M3 Pro 18GB 512GB", price:28500000, rating:4.9, sold:420, source:"Tokopedia", url:"#", cat:"laptop" },
-  { title:"Infinix Inbook X2 - i3 11th Gen", price:3999000, rating:3.8, sold:560, source:"Lazada", url:"#", cat:"laptop" },
-  { title:"Asus TUF Gaming F15 - i5 RTX 2050", price:10990000, rating:4.7, sold:670, source:"Shopee", url:"#", cat:"laptop" },
-  { title:"Lenovo ThinkPad X1 Carbon Gen 11 i7 16GB", price:24500000, rating:4.8, sold:90, source:"Blibli", url:"#", cat:"laptop thinkpad" },
-  { title:"HP Pavilion Aero 13 Ryzen 7 16GB", price:12900000, rating:4.7, sold:340, source:"Shopee", url:"#", cat:"laptop" },
+  { title:"Lenovo IdeaPad Slim 3 14 - Ryzen 5 8GB 512GB", price:6200000, rating:4.9, sold:2400, source:"Tokopedia", store:"Lenovo Official Store Tokopedia", url:"#", cat:"laptop" },
+  { title:"Asus Vivobook 14 A1402 - i5 13th Gen 8GB", price:7400000, rating:4.8, sold:1800, source:"Shopee", store:"ASUS Official Store Shopee Mall", url:"#", cat:"laptop" },
+  { title:"Acer Aspire 5 Slim - i3 1215U 8GB", price:5800000, rating:4.6, sold:900, source:"Blibli", store:"Acer Official Store Blibli", url:"#", cat:"laptop" },
+  { title:"HP 14s - Ryzen 5 7520U 8GB", price:6950000, rating:4.7, sold:1100, source:"Lazada", store:"HP Flagship Store LazMall", url:"#", cat:"laptop" },
+  { title:"Axioo Hype 5 X5 - Ryzen 5 8GB", price:3100000, rating:3.2, sold:320, source:"Shopee", store:"Axioo Official Store", url:"#", cat:"laptop" },
+  { title:"Advan Workplus - Ryzen 5 6600H 16GB", price:6400000, rating:4.8, sold:2100, source:"Tokopedia", store:"Advan Official Store", url:"#", cat:"laptop" },
+  { title:"MacBook Air M2 256GB - Midnight", price:15999000, rating:4.9, sold:850, source:"Blibli", store:"Apple Authorized Blibli", url:"#", cat:"laptop" },
+  { title:"MacBook Pro 14 M3 Pro 18GB 512GB", price:28500000, rating:4.9, sold:420, source:"Tokopedia", store:"Apple Official Tokopedia", url:"#", cat:"laptop" },
+  { title:"Infinix Inbook X2 - i3 11th Gen", price:3999000, rating:3.8, sold:560, source:"Lazada", store:"Infinix Flagship Lazada", url:"#", cat:"laptop" },
+  { title:"Asus TUF Gaming F15 - i5 RTX 2050", price:10990000, rating:4.7, sold:670, source:"Shopee", store:"ASUS ROG Official Shopee", url:"#", cat:"laptop" },
+  { title:"Lenovo ThinkPad X1 Carbon Gen 11 i7 16GB", price:24500000, rating:4.8, sold:90, source:"Blibli", store:"Lenovo ThinkPad Blibli Official", url:"#", cat:"laptop thinkpad" },
+  { title:"HP Pavilion Aero 13 Ryzen 7 16GB", price:12900000, rating:4.7, sold:340, source:"Shopee", store:"HP Official Shopee Mall", url:"#", cat:"laptop" },
   // hp samsung & hp umum
-  { title:"Samsung Galaxy A55 5G 8/256GB", price:5499000, rating:4.8, sold:3200, source:"Shopee", url:"#", cat:"hp samsung" },
-  { title:"Samsung Galaxy S23 FE 8/256GB", price:7999000, rating:4.7, sold:1500, source:"Tokopedia", url:"#", cat:"hp samsung" },
-  { title:"Samsung Galaxy M54 8/256GB", price:4599000, rating:4.6, sold:980, source:"Blibli", url:"#", cat:"hp samsung" },
-  { title:"Samsung Galaxy Z Flip5 8/256GB", price:14999000, rating:4.8, sold:420, source:"Lazada", url:"#", cat:"hp samsung" },
-  { title:"iPhone 15 128GB Garansi Resmi", price:13990000, rating:4.9, sold:2100, source:"Blibli", url:"#", cat:"hp iphone" },
-  { title:"Xiaomi Redmi Note 13 Pro 8/256GB", price:3299000, rating:4.7, sold:4300, source:"Shopee", url:"#", cat:"hp xiaomi" },
+  { title:"Samsung Galaxy A55 5G 8/256GB", price:5499000, rating:4.8, sold:3200, source:"Shopee", store:"Samsung Official Store Shopee", url:"#", cat:"hp samsung" },
+  { title:"Samsung Galaxy S23 FE 8/256GB", price:7999000, rating:4.7, sold:1500, source:"Tokopedia", store:"Samsung Official Tokopedia", url:"#", cat:"hp samsung" },
+  { title:"Samsung Galaxy M54 8/256GB", price:4599000, rating:4.6, sold:980, source:"Blibli", store:"Samsung Blibli Official", url:"#", cat:"hp samsung" },
+  { title:"Samsung Galaxy Z Flip5 8/256GB", price:14999000, rating:4.8, sold:420, source:"Lazada", store:"Samsung LazMall Official", url:"#", cat:"hp samsung" },
+  { title:"iPhone 15 128GB Garansi Resmi", price:13990000, rating:4.9, sold:2100, source:"Blibli", store:"Apple Authorized Blibli", url:"#", cat:"hp iphone" },
+  { title:"Xiaomi Redmi Note 13 Pro 8/256GB", price:3299000, rating:4.7, sold:4300, source:"Shopee", store:"Xiaomi Official Store Shopee", url:"#", cat:"hp xiaomi" },
   // kulkas & elektronik rumah
-  { title:"Kulkas 2 Pintu LG 260L Inverter", price:3899000, rating:4.7, sold:760, source:"Tokopedia", url:"#", cat:"kulkas" },
-  { title:"Kulkas Sharp 2 Pintu 220L J-Tech", price:3299000, rating:4.6, sold:540, source:"Shopee", url:"#", cat:"kulkas" },
-  { title:"Kulkas Polytron Belleza 180L 2 Pintu", price:2799000, rating:4.4, sold:310, source:"Blibli", url:"#", cat:"kulkas" },
-  { title:"TV LED 43 inch Samsung 4K UHD", price:4299000, rating:4.7, sold:890, source:"Tokopedia", url:"#", cat:"tv elektronik" },
-  { title:"Mesin Cuci LG 8Kg Front Loading", price:3899000, rating:4.6, sold:420, source:"Lazada", url:"#", cat:"mesin cuci elektronik" },
+  { title:"Kulkas 2 Pintu LG 260L Inverter", price:3899000, rating:4.7, sold:760, source:"Tokopedia", store:"LG Official Tokopedia", url:"#", cat:"kulkas" },
+  { title:"Kulkas Sharp 2 Pintu 220L J-Tech", price:3299000, rating:4.6, sold:540, source:"Shopee", store:"Sharp Official Shopee", url:"#", cat:"kulkas" },
+  { title:"Kulkas Polytron Belleza 180L 2 Pintu", price:2799000, rating:4.4, sold:310, source:"Blibli", store:"Polytron Blibli Official", url:"#", cat:"kulkas" },
+  { title:"TV LED 43 inch Samsung 4K UHD", price:4299000, rating:4.7, sold:890, source:"Tokopedia", store:"Samsung TV Official", url:"#", cat:"tv elektronik" },
+  { title:"Mesin Cuci LG 8Kg Front Loading", price:3899000, rating:4.6, sold:420, source:"Lazada", store:"LG Home LazMall", url:"#", cat:"mesin cuci elektronik" },
   // headset & aksesoris
-  { title:"Headset Gaming Fantech HG11 Captain", price:259000, rating:4.7, sold:5400, source:"Shopee", url:"#", cat:"headset gaming" },
-  { title:"Headset SteelSeries Arctis 1 Wireless", price:1299000, rating:4.8, sold:890, source:"Tokopedia", url:"#", cat:"headset gaming" },
-  { title:"Headset Rexus Vonix F30 Gaming", price:399000, rating:4.5, sold:1200, source:"Blibli", url:"#", cat:"headset gaming" },
-  { title:"Mouse Gaming Logitech G102 Lightsync", price:199000, rating:4.8, sold:12000, source:"Shopee", url:"#", cat:"mouse gaming" },
-  { title:"Keyboard Mechanical Rexus Daxa M71", price:699000, rating:4.7, sold:2100, source:"Tokopedia", url:"#", cat:"keyboard gaming" },
+  { title:"Headset Gaming Fantech HG11 Captain", price:259000, rating:4.7, sold:5400, source:"Shopee", store:"Fantech Official Shopee", url:"#", cat:"headset gaming" },
+  { title:"Headset SteelSeries Arctis 1 Wireless", price:1299000, rating:4.8, sold:890, source:"Tokopedia", store:"SteelSeries Official Tokopedia", url:"#", cat:"headset gaming" },
+  { title:"Headset Rexus Vonix F30 Gaming", price:399000, rating:4.5, sold:1200, source:"Blibli", store:"Rexus Blibli Official", url:"#", cat:"headset gaming" },
+  { title:"Mouse Gaming Logitech G102 Lightsync", price:199000, rating:4.8, sold:12000, source:"Shopee", store:"Logitech Official Shopee", url:"#", cat:"mouse gaming" },
+  { title:"Keyboard Mechanical Rexus Daxa M71", price:699000, rating:4.7, sold:2100, source:"Tokopedia", store:"Rexus Official Tokopedia", url:"#", cat:"keyboard gaming" },
   // makanan & minuman — GrabFood / GoFood / ShopeeFood
-  { title:"Ayam Geprek Sambal Bawang + Nasi", price:28000, rating:4.8, sold:8200, source:"GrabFood", url:"#", cat:"makanan ayam geprek" },
-  { title:"Bakso Malang Komplit Tetelan", price:35000, rating:4.7, sold:5400, source:"GoFood", url:"#", cat:"makanan bakso" },
-  { title:"Nasi Goreng Spesial Seafood", price:32000, rating:4.6, sold:6100, source:"ShopeeFood", url:"#", cat:"makanan nasi goreng" },
-  { title:"Kopi Susu Gula Aren 500ml", price:22000, rating:4.8, sold:9300, source:"GrabFood", url:"#", cat:"minuman kopi" },
-  { title:"Martabak Manis Coklat Keju", price:45000, rating:4.7, sold:3100, source:"GoFood", url:"#", cat:"makanan martabak" },
-  { title:"Sate Ayam Madura 10 Tusuk + Lontong", price:40000, rating:4.6, sold:2700, source:"ShopeeFood", url:"#", cat:"makanan sate" },
-  { title:"Mie Gacoan Level 3 + Es Teh", price:30000, rating:4.5, sold:4800, source:"GrabFood", url:"#", cat:"makanan mie gacoan" },
-  { title:"Burger King Whopper Paket", price:55000, rating:4.6, sold:1900, source:"GoFood", url:"#", cat:"makanan burger" },
+  { title:"Ayam Geprek Sambal Bawang + Nasi", price:28000, rating:4.8, sold:8200, source:"GrabFood", store:"Ayam Geprek Bensu GrabFood", url:"#", cat:"makanan ayam geprek" },
+  { title:"Bakso Malang Komplit Tetelan", price:35000, rating:4.7, sold:5400, source:"GoFood", store:"Bakso Malang Cak Man GoFood", url:"#", cat:"makanan bakso" },
+  { title:"Nasi Goreng Spesial Seafood", price:32000, rating:4.6, sold:6100, source:"ShopeeFood", store:"Nasi Goreng 88 ShopeeFood", url:"#", cat:"makanan nasi goreng" },
+  { title:"Kopi Susu Gula Aren 500ml", price:22000, rating:4.8, sold:9300, source:"GrabFood", store:"Kopi Janji Jiwa GrabFood", url:"#", cat:"minuman kopi" },
+  { title:"Martabak Manis Coklat Keju", price:45000, rating:4.7, sold:3100, source:"GoFood", store:"Martabak Pecenongan 65B GoFood", url:"#", cat:"makanan martabak" },
+  { title:"Sate Ayam Madura 10 Tusuk + Lontong", price:40000, rating:4.6, sold:2700, source:"ShopeeFood", store:"Sate Taichan Senayan ShopeeFood", url:"#", cat:"makanan sate" },
+  { title:"Mie Gacoan Level 3 + Es Teh", price:30000, rating:4.5, sold:4800, source:"GrabFood", store:"Mie Gacoan GrabFood - Tidar", url:"#", cat:"makanan mie gacoan" },
+  { title:"Burger King Whopper Paket", price:55000, rating:4.6, sold:1900, source:"GoFood", store:"Burger King GoFood Official", url:"#", cat:"makanan burger" },
   // ikan cupang & hewan — Shopee/Tokopedia
-  { title:"Ikan Cupang Halfmoon Super Red Jantan", price:45000, rating:4.8, sold:3200, source:"Shopee", url:"#", cat:"ikan cupang hias" },
-  { title:"Ikan Cupang Koi Galaxy Multi Colour", price:75000, rating:4.7, sold:1800, source:"Tokopedia", url:"#", cat:"ikan cupang" },
-  { title:"Ikan Cupang Plakat Blue Solid", price:35000, rating:4.6, sold:2100, source:"Blibli", url:"#", cat:"ikan cupang" },
-  { title:"Aquarium Cupang Mini 15cm + Tanaman", price:85000, rating:4.5, sold:900, source:"Lazada", url:"#", cat:"ikan cupang aquarium" },
-  { title:"Pakan Ikan Cupang Premium 50g", price:25000, rating:4.7, sold:5400, source:"Shopee", url:"#", cat:"ikan pakan" },
+  { title:"Ikan Cupang Halfmoon Super Red Jantan", price:45000, rating:4.8, sold:3200, source:"Shopee", store:"Cupang Gallery Official Shopee", url:"#", cat:"ikan cupang hias" },
+  { title:"Ikan Cupang Koi Galaxy Multi Colour", price:75000, rating:4.7, sold:1800, source:"Tokopedia", store:"BetFish Official Tokopedia", url:"#", cat:"ikan cupang" },
+  { title:"Ikan Cupang Plakat Blue Solid", price:35000, rating:4.6, sold:2100, source:"Blibli", store:"Ikan Hias Blibli Official", url:"#", cat:"ikan cupang" },
+  { title:"Aquarium Cupang Mini 15cm + Tanaman", price:85000, rating:4.5, sold:900, source:"Lazada", store:"Aquarium Store LazMall", url:"#", cat:"ikan cupang aquarium" },
+  { title:"Pakan Ikan Cupang Premium 50g", price:25000, rating:4.7, sold:5400, source:"Shopee", store:"Pakan Ikan Official Shopee", url:"#", cat:"ikan pakan" },
   // fashion & sepatu
-  { title:"Sepatu Sneakers Nike Air Jordan 1 Low", price:1299000, rating:4.8, sold:3400, source:"Tokopedia", url:"#", cat:"sepatu sneakers" },
-  { title:"Kaos Polos Cotton Combed 30s", price:45000, rating:4.6, sold:15000, source:"Shopee", url:"#", cat:"baju kaos fashion" },
-  { title:"Tas Ransel Eiger Pria Waterproof", price:399000, rating:4.7, sold:2100, source:"Blibli", url:"#", cat:"tas ransel" },
+  { title:"iPhone 11 64GB Garansi Resmi", price:6999000, rating:4.8, sold:3400, source:"Shopee", store:"Apple Official Store Shopee", url:"#", cat:"hp iphone 11" },
+  { title:"iPhone 11 128GB Second Original", price:5499000, rating:4.6, sold:1200, source:"Tokopedia", store:"iBox Official Tokopedia", url:"#", cat:"hp iphone 11" },
+  { title:"Sepatu Sneakers Nike Air Jordan 1 Low", price:1299000, rating:4.8, sold:3400, source:"Tokopedia", store:"Nike Official Store Tokopedia", url:"#", cat:"sepatu sneakers" },
+  { title:"Kaos Polos Cotton Combed 30s", price:45000, rating:4.6, sold:15000, source:"Shopee", store:"Erigo Store Shopee", url:"#", cat:"baju kaos fashion" },
+  { title:"Tas Ransel Eiger Pria Waterproof", price:399000, rating:4.7, sold:2100, source:"Blibli", store:"Eiger Blibli Official", url:"#", cat:"tas ransel" },
 ];
 
 function buildUrl(source, title, q){
@@ -113,7 +125,6 @@ function generateSynthetic(q){
   return sources.map((src,i)=>{
     const variant = variants[i % variants.length];
     const title = food || fashion ? `${caps} ${variant}` : `${caps} ${variant} ${i+1}`;
-    // hindari varian duplikat: tambah angka jika perlu
     const titleUniq = sources.length > variants.length ? `${title} ${i+1}` : title;
     const isFoodSrc = ["GrabFood","GoFood","ShopeeFood"].includes(src);
     const priceBase = isFoodSrc ? 28000 + (i*6000) : fashion ? 150000 + (i*70000) : basePrice + (i*60000);
@@ -121,19 +132,41 @@ function generateSynthetic(q){
     const rating = +(4.5 + Math.random()*0.4).toFixed(1);
     const sold = 1200 + Math.floor(Math.random()*4000);
     const cat = q.toLowerCase();
-    return { title: titleUniq, price: Math.max(9000, price), rating, sold, source: src, cat, url: buildUrl(src, titleUniq, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
+    const store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
+    return { title: titleUniq, price: Math.max(9000, price), rating, sold, source: src, store, cat, url: buildUrl(src, titleUniq, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
   });
 }
 
 function pickProducts(q){
   const nq = q.toLowerCase();
   const tokens = nq.split(/\s+/).filter(Boolean);
-  let filtered = ALL_PRODUCTS.filter(p => tokens.some(w => p.title.toLowerCase().includes(w) || p.cat.toLowerCase().includes(w)));
-  if(filtered.length===0){
-    filtered = ALL_PRODUCTS.filter(p => tokens.slice(0,1).some(w => p.title.toLowerCase().includes(w)));
+  // token bermakna = huruf >=2, bukan angka murni (biar "11" tidak match HG11)
+  const meaningful = tokens.filter(t=> t.length>=2 && !/^\d+$/.test(t) && t !== "hp" || t==="hp" && tokens.includes("hp"));
+  const useTokens = meaningful.length ? meaningful : tokens.filter(t=> t.length>=3);
+  let filtered = ALL_PRODUCTS.filter(p => {
+    const title = p.title.toLowerCase();
+    const cat = p.cat.toLowerCase();
+    const combined = `${title} ${cat}`;
+    // harus mengandung frasa query atau minimal 1 token bermakna panjang
+    if(combined.includes(nq)) return true;
+    const hits = useTokens.filter(w => title.includes(w) || cat.includes(w)).length;
+    // untuk "hp iphone 11": butuh iphone (wajib) + hp/11 optional
+    if(nq.includes("iphone") && !title.includes("iphone")) return false;
+    if(nq.includes("samsung") && !title.includes("samsung") && !cat.includes("samsung")) return false;
+    return hits >= 1 && (useTokens.length===1 || hits >=1);
+  });
+  // kalau masih >0 tapi banyak yang tidak relevan (headset muncul karena 11), saring lagi: hapus yang hanya match angka
+  if(filtered.length){
+    const strict = filtered.filter(p=>{
+      const title = p.title.toLowerCase();
+      return useTokens.some(w=> title.includes(w) && w.length>=3);
+    });
+    if(strict.length) filtered = strict;
   }
   if(filtered.length===0){
-    // scrapping synthetic: generate produk sesuai query biar tampil banyak & sesuai
+    filtered = ALL_PRODUCTS.filter(p => tokens.slice(0,1).some(w => p.title.toLowerCase().includes(w) && w.length>=3));
+  }
+  if(filtered.length===0){
     const synth = generateSynthetic(q);
     return synth.sort((a,b)=>b.valueScore-a.valueScore);
   }
