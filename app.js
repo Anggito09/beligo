@@ -13,6 +13,10 @@ const MOCK = [
   {id:10, title:"Asus TUF Gaming F15 - i5 RTX 2050", price:10999000, rating:4.7, sold:670, source:"Shopee", url:"#", updatedAt:"2026-09-01T06:06:00Z"},
   {id:11, title:"Lenovo ThinkPad X1 Carbon Gen 11", price:24500000, rating:4.8, sold:90, source:"Tokopedia", url:"#", updatedAt:"2026-09-01T05:48:00Z"},
   {id:12, title:"Zyrex Sky 232 - Celeron N4020", price:2850000, rating:3.0, sold:140, source:"Blibli", url:"#", updatedAt:"2026-09-01T05:42:00Z"},
+  {id:13, title:"Ayam Geprek Sambal Bawang + Nasi", price:28000, rating:4.8, sold:8200, source:"GrabFood", url:"#", updatedAt:"2026-09-01T06:06:00Z"},
+  {id:14, title:"Bakso Malang Komplit Tetelan", price:35000, rating:4.7, sold:5400, source:"GoFood", url:"#", updatedAt:"2026-09-01T06:06:00Z"},
+  {id:15, title:"Kopi Susu Gula Aren 500ml", price:22000, rating:4.8, sold:9300, source:"ShopeeFood", url:"#", updatedAt:"2026-09-01T06:06:00Z"},
+  {id:16, title:"Nasi Goreng Spesial Seafood", price:32000, rating:4.6, sold:6100, source:"GrabFood", url:"#", updatedAt:"2026-09-01T06:06:00Z"},
 ];
 
 const $ = s => document.querySelector(s);
@@ -37,10 +41,35 @@ function valueScore(p){
   // rating 0-5 -> 0-10, price normalized 0-10 -> score 0-10
   return +( (p.rating*2) - (p.price/maxPrice*4) + 2 ).toFixed(1);
 }
+function buildLink(source, q){
+  const qq = encodeURIComponent(q);
+  const map = {
+    Shopee: `https://shopee.co.id/search?keyword=${qq}`,
+    Tokopedia: `https://www.tokopedia.com/search?st=product&q=${qq}`,
+    Blibli: `https://www.blibli.com/search?s=${qq}`,
+    Lazada: `https://www.lazada.co.id/tag/${qq}/`,
+    GrabFood: `https://food.grab.com/id/id/search?query=${qq}`,
+    GoFood: `https://gofood.co.id/search?q=${qq}`,
+    ShopeeFood: `https://shopee.co.id/shopeefood/search?keyword=${qq}`,
+  };
+  return map[source] || `https://www.google.com/search?q=${qq}`;
+}
 function filtered(){
   let arr = [...state.data];
-  const q = state.q.toLowerCase();
-  if(q) arr = arr.filter(p => p.title.toLowerCase().includes(q));
+  const q = state.q.toLowerCase().trim();
+  // data dari API sudah terfilter per query — jangan filter ulang ketat, hanya ranking
+  if(q){
+    const tokens = q.split(/\s+/).filter(Boolean);
+    // jika data live sudah sesuai, tetap tampilkan semua; ranking akan di-handle di sort
+    const hasMatch = arr.some(p => tokens.some(t=> p.title.toLowerCase().includes(t)));
+    if(hasMatch){
+      arr = arr.slice().sort((a,b)=>{
+        const ah = tokens.filter(t=> a.title.toLowerCase().includes(t)).length;
+        const bh = tokens.filter(t=> b.title.toLowerCase().includes(t)).length;
+        return bh - ah;
+      });
+    }
+  }
   // 4 kuadran
   if(state.filter==="best") arr = arr.filter(p=>p.rating>=4.6).sort((a,b)=>a.price-b.price);
   if(state.filter==="premium") arr = arr.filter(p=>p.rating>=4.7).sort((a,b)=>b.price-a.price);

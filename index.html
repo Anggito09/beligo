@@ -12,57 +12,62 @@
 <body>
 <header class="nav">
   <div class="container nav-inner">
-    <a class="brand" href="#">beligo<span>.</span></a>
+    <a class="brand" href="#"><img src="assets/beligo-logo.png" alt="Beligo" class="brand-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span style="display:none">beligo<span>.</span></span></a>
   </div>
 </header>
 
 <section class="hero">
   <div class="container hero-grid">
     <div>
-      <div class="eyebrow">Price Intelligence · Up-to-date · Multi-Marketplace</div>
-      <h1>Bandingkan harga <span>dari semua marketplace</span> dalam satu search.</h1>
-      <p class="lead">Cari <b>laptop</b> → sistem ambil harga terbaru dari Shopee, Tokopedia, Blibli, Lazada. Otomatis kelompokkan <b>termurah & termahal</b> dengan <b>rating tinggi & rendah</b> biar keputusan lebih cerdas.</p>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> Price Intelligence · Real-Time · Terpercaya</div>
+      <h1>Keputusan belanja <span>lebih cerdas</span> dalam satu pencarian</h1>
+      <p class="lead">Bandingkan harga dari berbagai marketplace dalam satu tampilan. Sistem mengelompokkan <b>harga terbaik</b> dan <b>rating terpercaya</b> agar Anda memilih dengan akurat, efisien, dan percaya diri.</p>
       
       <div class="search-box" id="compare">
         <div class="search-input-wrap">
+          <span class="search-icon">⌕</span>
           <input id="q" type="text" placeholder="Cari produk, mis: laptop, hp, kulkas..." value="laptop" />
-          <button id="btnSearch">Bandingkan →</button>
+          <button id="btnSearch"><span class="btn-icon">◈</span> Bandingkan</button>
         </div>
         <div class="search-meta">
-          <span id="lastUpdate">Cache: 12 menit lalu</span>
+          <span id="lastUpdate" class="live-badge">● Live • 4 marketplace aktif</span>
           <span>·</span>
           <span id="resultCount">12 produk</span>
           <span>·</span>
-          <label class="inline"><input type="checkbox" id="liveToggle"> Live • Update 15 Menit</label>
+          <label class="inline"><input type="checkbox" id="liveToggle" checked> Sinkron otomatis • Update 15 Menit</label>
         </div>
         <div class="chips">
-          <button class="chip" data-q="laptop">Laptop</button>
-          <button class="chip" data-q="hp samsung">HP Samsung</button>
-          <button class="chip" data-q="kulkas 2 pintu">Kulkas</button>
-          <button class="chip" data-q="headset gaming">Headset</button>
+          <button class="chip" data-q="laptop"><span>💻</span> Laptop</button>
+          <button class="chip" data-q="hp samsung"><span>📱</span> HP Samsung</button>
+          <button class="chip" data-q="kulkas 2 pintu"><span>❄️</span> Kulkas</button>
+          <button class="chip" data-q="headset gaming"><span>🎧</span> Headset</button>
+          <button class="chip" data-q="ayam geprek"><span>🍗</span> Ayam Geprek</button>
+          <button class="chip" data-q="kopi gula aren"><span>☕</span> Kopi</button>
+          <button class="chip" data-q="nasi goreng"><span>🍛</span> Nasi Goreng</button>
+          <button class="chip" data-q="bakso"><span>🍜</span> Bakso</button>
         </div>
       </div>
 
       <div class="stats">
-        <div><strong id="statMarkets">4</strong><span>Marketplace</span></div>
-        <div><strong id="statProducts">12</strong><span>Produk terindeks</span></div>
-        <div><strong>15 Menit</strong><span>Update</span></div>
+        <div><span class="stat-icon">⬢</span><strong id="statMarkets">4</strong><span>Marketplace</span></div>
+        <div><span class="stat-icon">◈</span><strong id="statProducts">12</strong><span>Produk terindeks</span></div>
+        <div><span class="stat-icon">◷</span><strong>15 Menit</strong><span>Sinkron otomatis</span></div>
       </div>
     </div>
 
     <div class="hero-card">
       <div class="card-head">
-        <div><span class="card-kicker">Live Ranking</span><strong>Preview rekomendasi real-time</strong></div>
+        <div><span class="card-kicker"><span class="kicker-dot"></span> Live Ranking</span><strong>Preview rekomendasi real-time</strong><small>Diperbarui otomatis setiap 15 menit</small></div>
         <span class="dot" aria-hidden="true"></span>
       </div>
       <div class="quadrants">
-        <div class="quad best"><div class="quad-icon">✓</div><div><b>Nilai Terbaik</b><small>Harga rendah • Rating tinggi</small><strong id="previewBest">Acer Aspire 5 — Rp 5.8jt • 4.6</strong></div></div>
-        <div class="quad premium"><div class="quad-icon">◆</div><div><b>Premium</b><small>Kualitas teratas</small><strong id="previewPremium">MacBook Pro 14 — Rp 28.5jt • 4.9</strong></div></div>
-        <div class="quad risky"><div class="quad-icon">!</div><div><b>Hemat Risiko</b><small>Harga miring • Perlu cek ulasan</small><strong id="previewRisky">Zyrex Sky 232 — Rp 2.85jt • 3.0</strong></div></div>
-        <div class="quad balanced"><div class="quad-icon">☆</div><div><b>Rekomendasi</b><small>Skor seimbang harga & rating</small><strong id="previewScore">Lenovo IdeaPad Slim 3 — Skor 10.9</strong></div></div>
+        <div class="quad best"><div class="quad-icon">✦</div><div><b>Nilai Terbaik</b><small>Harga kompetitif • Rating tepercaya</small><strong id="previewBest">Acer Aspire 5 — Rp 5.8jt • 4.6</strong></div></div>
+        <div class="quad premium"><div class="quad-icon">⬢</div><div><b>Premium</b><small>Kualitas unggulan • Rating tertinggi</small><strong id="previewPremium">MacBook Pro 14 — Rp 28.5jt • 4.9</strong></div></div>
+        <div class="quad risky"><div class="quad-icon">⚑</div><div><b>Perlu Pertimbangan</b><small>Harga miring • Cek ulasan detail</small><strong id="previewRisky">Zyrex Sky 232 — Rp 2.85jt • 3.0</strong></div></div>
+        <div class="quad balanced"><div class="quad-icon">◈</div><div><b>Rekomendasi</b><small>Skor seimbang harga & rating</small><strong id="previewScore">Lenovo IdeaPad Slim 3 — Skor 10.9</strong></div></div>
       </div>
       <div class="hero-card-foot">
-        <span>4 marketplace</span><i></i><span>Update 15 Menit</span><i></i><span>Kurasi otomatis</span>
+        <span>⬢ 4 marketplace</span><i></i><span>◷ Update 15 Menit</span><i></i><span>✦ Kurasi otomatis</span>
       </div>
     </div>
   </div>

@@ -4,5 +4,7 @@ export const marketplaces = [
   { id: "tokopedia", name: "Tokopedia", enabled: true, module: "./tokopedia.js" },
   { id: "blibli", name: "Blibli", enabled: true, module: "./blibli.js" },
   { id: "lazada", name: "Lazada", enabled: true, module: "./lazada.js" },
-  // { id: "tiktok_shop", name: "TikTok Shop", enabled: true, module: "./tiktok.js" },
+  { id: "grabfood", name: "GrabFood", enabled: true, module: "./grabfood.js" },
+  { id: "gofood", name: "GoFood", enabled: true, module: "./gofood.js" },
+  { id: "shopeefood", name: "ShopeeFood", enabled: true, module: "./shopeefood.js" },
 ];

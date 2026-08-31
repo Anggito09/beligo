@@ -33,15 +33,50 @@ const ALL_PRODUCTS = [
   { title:"Headset Gaming Fantech HG11 Captain", price:259000, rating:4.7, sold:5400, source:"Shopee", url:"#", cat:"headset gaming" },
   { title:"Headset SteelSeries Arctis 1 Wireless", price:1299000, rating:4.8, sold:890, source:"Tokopedia", url:"#", cat:"headset gaming" },
   { title:"Headset Rexus Vonix F30 Gaming", price:399000, rating:4.5, sold:1200, source:"Blibli", url:"#", cat:"headset gaming" },
+  // makanan & minuman — GrabFood / GoFood / ShopeeFood
+  { title:"Ayam Geprek Sambal Bawang + Nasi", price:28000, rating:4.8, sold:8200, source:"GrabFood", url:"#", cat:"makanan ayam geprek" },
+  { title:"Bakso Malang Komplit Tetelan", price:35000, rating:4.7, sold:5400, source:"GoFood", url:"#", cat:"makanan bakso" },
+  { title:"Nasi Goreng Spesial Seafood", price:32000, rating:4.6, sold:6100, source:"ShopeeFood", url:"#", cat:"makanan nasi goreng" },
+  { title:"Kopi Susu Gula Aren 500ml", price:22000, rating:4.8, sold:9300, source:"GrabFood", url:"#", cat:"minuman kopi" },
+  { title:"Martabak Manis Coklat Keju", price:45000, rating:4.7, sold:3100, source:"GoFood", url:"#", cat:"makanan martabak" },
+  { title:"Sate Ayam Madura 10 Tusuk + Lontong", price:40000, rating:4.6, sold:2700, source:"ShopeeFood", url:"#", cat:"makanan sate" },
+  { title:"Mie Gacoan Level 3 + Es Teh", price:30000, rating:4.5, sold:4800, source:"GrabFood", url:"#", cat:"makanan mie gacoan" },
+  { title:"Burger King Whopper Paket", price:55000, rating:4.6, sold:1900, source:"GoFood", url:"#", cat:"makanan burger" },
 ];
+
+function buildUrl(source, title, q){
+  const kw = encodeURIComponent(title);
+  const qq = encodeURIComponent(q);
+  const map = {
+    Shopee: `https://shopee.co.id/search?keyword=${qq}`,
+    Tokopedia: `https://www.tokopedia.com/search?st=product&q=${qq}`,
+    Blibli: `https://www.blibli.com/search?s=${qq}`,
+    Lazada: `https://www.lazada.co.id/tag/${qq}/`,
+    GrabFood: `https://food.grab.com/id/id/search?query=${qq}`,
+    GoFood: `https://gofood.co.id/search?q=${qq}`,
+    ShopeeFood: `https://shopee.co.id/shopeefood/search?keyword=${qq}`,
+  };
+  return map[source] || `https://www.google.com/search?q=${kw}`;
+}
 
 function pickProducts(q){
   const nq = q.toLowerCase();
-  let filtered = ALL_PRODUCTS.filter(p => nq.split(/\s+/).some(w => p.title.toLowerCase().includes(w) || p.cat.includes(w)));
-  if(filtered.length===0) filtered = ALL_PRODUCTS.filter(p=>p.cat==="laptop").slice(0,6);
-  // tambah variasi harga tipis biar terasa live
-  const jitter = () => Math.round((Math.random()-0.5)*120000);
-  return filtered.map(p=>({ ...p, price: Math.max(90000, p.price + jitter()), updatedAt: new Date().toISOString(), valueScore: p.rating*2 - (p.price/50000000)*4 + 2 })).sort((a,b)=>b.valueScore-a.valueScore);
+  const tokens = nq.split(/\s+/).filter(Boolean);
+  let filtered = ALL_PRODUCTS.filter(p => tokens.some(w => p.title.toLowerCase().includes(w) || p.cat.toLowerCase().includes(w)));
+  if(filtered.length===0){
+    filtered = ALL_PRODUCTS.filter(p => tokens.slice(0,1).some(w => p.title.toLowerCase().includes(w)));
+  }
+  if(filtered.length===0) filtered = ALL_PRODUCTS.slice(0,8);
+  const isFood = filtered.some(p => ["GrabFood","GoFood","ShopeeFood"].includes(p.source));
+  const jitter = () => Math.round((Math.random()-0.5)*(isFood? 6000 : 120000));
+  // ranking: yang mengandung semua token di atas
+  const scored = filtered.map(p=>{
+    const title = p.title.toLowerCase();
+    const cat = p.cat.toLowerCase();
+    const hits = tokens.filter(t=> title.includes(t) || cat.includes(t)).length;
+    return { p, hits };
+  }).sort((a,b)=> b.hits - a.hits || b.p.rating - a.p.rating);
+  return scored.map(({p})=>({ ...p, url: buildUrl(p.source, p.title, q), price: Math.max(9000, p.price + jitter()), updatedAt: new Date().toISOString(), valueScore: p.rating*2 - (p.price/50000000)*4 + 2 })).sort((a,b)=>b.valueScore-a.valueScore);
 }
 
 export default async function handler(req, res) {

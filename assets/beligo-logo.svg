@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80">
+  <style>
+    .t{font-family:Inter,Arial,sans-serif;font-weight:900;fill:#0b2a5b;font-size:54px;letter-spacing:-1.5px}
+    .dot{fill:#0b5cff}
+  </style>
+  <!-- magnifier -->
+  <g transform="translate(4,6)">
+    <circle cx="34" cy="34" r="28" fill="none" stroke="#0b3db0" stroke-width="5"/>
+    <rect x="56" y="48" width="22" height="10" rx="5" transform="rotate(42 56 48)" fill="#0b3db0"/>
+    <!-- bars Rp -->
+    <rect x="14" y="28" width="18" height="28" rx="2" fill="#10b981"/>
+    <rect x="34" y="14" width="18" height="42" rx="2" fill="#2563eb"/>
+    <rect x="54" y="34" width="18" height="22" rx="2" fill="#f59e0b"/>
+    <g font-family="Inter,Arial" font-weight="800" font-size="7" fill="white" text-anchor="middle">
+      <text x="23" y="44">Rp</text><text x="43" y="38">Rp</text><text x="63" y="48">Rp</text>
+    </g>
+    <!-- small icons -->
+    <circle cx="2" cy="6" r="9" fill="#10b981"/><text x="2" y="9.5" text-anchor="middle" font-size="9" fill="white">👜</text>
+    <circle cx="68" cy="4" r="9" fill="#7c3aed"/><text x="68" y="7.5" text-anchor="middle" font-size="8" fill="white">🛒</text>
+  </g>
+  <text x="96" y="54" class="t">Beligo</text><circle cx="212" cy="18" r="6" class="dot"/>
+  <path d="M 118 62 Q 150 74 186 62" fill="none" stroke="#0b5cff" stroke-width="3" stroke-linecap="round"/>
+</svg>
