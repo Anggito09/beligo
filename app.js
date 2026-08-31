@@ -109,7 +109,7 @@ function render(){
       </article>`;
     }).join("");
   }
-  // preview quadrants
+  // preview quadrants — jangan pakai data lama jika tidak ada kategori risky
   const best = [...state.data].filter(p=>p.rating>=4.6).sort((a,b)=>a.price-b.price)[0];
   const premium = [...state.data].filter(p=>p.rating>=4.7).sort((a,b)=>b.price-a.price)[0];
   const risky = [...state.data].filter(p=>p.rating<4.0).sort((a,b)=>a.price-b.price)[0];
@@ -117,7 +117,11 @@ function render(){
   if(best) $("#previewBest").textContent = `${best.title.slice(0,22)} — ${formatRp(best.price)} · ⭐ ${best.rating}`;
   if(premium) $("#previewPremium").textContent = `${premium.title.slice(0,22)} — ${formatRp(premium.price)} · ⭐ ${premium.rating}`;
   if(risky) $("#previewRisky").textContent = `${risky.title.slice(0,22)} — ${formatRp(risky.price)} · ⭐ ${risky.rating}`;
+  else { const el=$("#previewRisky"); if(el) el.textContent = "Tidak ada • Rating aman semua"; }
   if(byValue) $("#previewScore").textContent = `${byValue.title.slice(0,22)} — Score ${valueScore(byValue)}`;
+  // update foot count sinkron dengan marketplace aktif (bukan 4 statis)
+  const foot = document.querySelector(".hero-card-foot");
+  if(foot){ const s= foot.querySelectorAll("span"); if(s[0]) s[0].textContent = `⬢ ${new Set(state.data.map(p=>p.source)).size} marketplace`; }
 }
 
 async function fetchLive(q){

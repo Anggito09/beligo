@@ -85,20 +85,43 @@ function buildUrl(source, title, q){
   return map[source] || `https://www.google.com/search?q=${kw}`;
 }
 
+function isFoodQuery(q){ return /nasi|ayam|bakso|sate|kopi|padang|mie|martabak|burger|gacoan|cupang.*(pakan)?/i.test(q); }
+function isFashionQuery(q){ return /jaket|baju|kaos|sepatu|tas|sneakers|hoodie|bomber|fashion|celana/i.test(q); }
 function generateSynthetic(q){
   const caps = q.split(/\s+/).map(w=> w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-  const sources = ["Shopee","Tokopedia","Blibli","Lazada","GrabFood","GoFood"];
-  const variants = ["Paket Hemat", "Original", "Premium", "Spesial", "Komplit", "Family"];
+  const food = isFoodQuery(q);
+  const fashion = isFashionQuery(q);
+  let sources, variants, basePrice;
+  if(food){
+    sources = ["GrabFood","GoFood","ShopeeFood","Shopee","Tokopedia","Blibli"];
+    variants = ["Paket Hemat", "Komplit", "Spesial", "Family", "Original", "Jumbo"];
+    basePrice = 28000;
+  } else if(fashion){
+    sources = ["Shopee","Tokopedia","Blibli","Lazada"];
+    const fashionVariants = {
+      jaket: ["Hoodie Pria", "Bomber Oversize", "Parka Waterproof", "Varsity"],
+      default: ["Polos", "Oversize", "Premium", "Casual"]
+    };
+    const key = /jaket/i.test(q) ? "jaket" : "default";
+    variants = fashionVariants[key];
+    basePrice = 150000;
+  } else {
+    sources = ["Shopee","Tokopedia","Blibli","Lazada"];
+    variants = ["Original", "Premium", "Pro", "Spesial"];
+    basePrice = 120000;
+  }
   return sources.map((src,i)=>{
     const variant = variants[i % variants.length];
-    const title = `${caps} ${variant} ${i+1}`;
-    const isFood = ["GrabFood","GoFood","ShopeeFood"].includes(src) || /nasi|ayam|bakso|sate|kopi|padang|mie|burger|martabak|ikan/i.test(q);
-    const base = isFood ? 25000 + (i*8000) : 80000 + (i*150000);
-    const price = base + Math.round((Math.random()-0.5)* (isFood? 12000 : 80000));
-    const rating = +(4.4 + Math.random()*0.5).toFixed(1);
-    const sold = 800 + Math.floor(Math.random()*5000);
+    const title = food || fashion ? `${caps} ${variant}` : `${caps} ${variant} ${i+1}`;
+    // hindari varian duplikat: tambah angka jika perlu
+    const titleUniq = sources.length > variants.length ? `${title} ${i+1}` : title;
+    const isFoodSrc = ["GrabFood","GoFood","ShopeeFood"].includes(src);
+    const priceBase = isFoodSrc ? 28000 + (i*6000) : fashion ? 150000 + (i*70000) : basePrice + (i*60000);
+    const price = priceBase + Math.round((Math.random()-0.5)* (isFoodSrc? 8000 : 40000));
+    const rating = +(4.5 + Math.random()*0.4).toFixed(1);
+    const sold = 1200 + Math.floor(Math.random()*4000);
     const cat = q.toLowerCase();
-    return { title, price: Math.max(9000, price), rating, sold, source: src, cat, url: buildUrl(src, title, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
+    return { title: titleUniq, price: Math.max(9000, price), rating, sold, source: src, cat, url: buildUrl(src, titleUniq, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
   });
 }
 
