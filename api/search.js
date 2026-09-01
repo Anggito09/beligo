@@ -211,7 +211,7 @@ function generateSynthetic(q){
 function pickProducts(q){
   const nq = q.toLowerCase();
   const tokens = nq.split(/\s+/).filter(Boolean);
-  const genericTokens = ["mini","original","premium","pro","spesial","evo","official","garansi"];
+  const genericTokens = ["mini","original","premium","pro","spesial","evo","official","garansi","best","seller","limited","13","12"];
   const meaningful = tokens.filter(t=> t.length>=2 && !/^\d+$/.test(t) && !genericTokens.includes(t) || t==="hp" && tokens.includes("hp"));
   const useTokens = meaningful.length ? meaningful : tokens.filter(t=> t.length>=3 && !genericTokens.includes(t));
   let filtered = ALL_PRODUCTS.filter(p => {
@@ -219,8 +219,9 @@ function pickProducts(q){
     const cat = p.cat.toLowerCase();
     const combined = `${title} ${cat}`;
     if(combined.includes(nq)) return true;
-    // untuk instax mini evo: wajib instax, mini/evo tidak cukup sendirian
     if(nq.includes("instax") && !title.includes("instax")) return false;
+    // Aquarium/Mini tidak boleh ikut instax mini 13 — mini generik diabaikan
+    if(nq.includes("instax") && title.includes("aquarium")) return false;
     if(nq.includes("parfum") && !combined.includes("parfum")) return false;
     if(nq.includes("iphone") && !title.includes("iphone")) return false;
     if(nq.includes("samsung") && !title.includes("samsung") && !cat.includes("samsung")) return false;
@@ -233,7 +234,7 @@ function pickProducts(q){
   if(filtered.length){
     const strict = filtered.filter(p=>{
       const title = p.title.toLowerCase();
-      return useTokens.some(w=> title.includes(w) && w.length>=3 && !["mini","evo"].includes(w) || title.includes("instax"));
+      return useTokens.some(w=> title.includes(w) && w.length>=3 && !["mini","evo","13","12"].includes(w) || title.includes("instax"));
     });
     if(strict.length) filtered = strict;
   }
@@ -253,10 +254,16 @@ function pickProducts(q){
     return { p, hits };
   }).sort((a,b)=> b.hits - a.hits || b.p.rating - a.p.rating);
   let results = scored.map(({p})=>({ ...p, url: buildUrl(p.source, p.title, q), price: Math.max(9000, p.price + jitter()), updatedAt: new Date().toISOString(), valueScore: p.rating*2 - (p.price/50000000)*4 + 2 })).sort((a,b)=>b.valueScore-a.valueScore);
-  // jika hasil <20, tambah synthetic biar tampil 20-30 & banyak
+  // jika hasil <20, tambah synthetic biar tampil 20-30 & banyak — tapi hanya yang brand sesuai
   if(results.length < 20){
     const need = 24 - results.length;
-    const synth = generateSynthetic(q).slice(0, need);
+    const synthAll = generateSynthetic(q);
+    // filter synthetic yang benar-benar mengandung meaningful token, bukan aquarium salah
+    const synthFiltered = synthAll.filter(s=>{
+      const t = s.title.toLowerCase();
+      return useTokens.some(w=> t.includes(w) && w.length>=3) || t.includes(nq);
+    });
+    const synth = (synthFiltered.length? synthFiltered : synthAll).slice(0, need);
     results = [...results, ...synth].sort((a,b)=>b.valueScore-a.valueScore);
   }
   // batasi 30 biar tidak overload, tapi tetap 20-30
