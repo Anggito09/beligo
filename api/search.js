@@ -157,14 +157,19 @@ function getPriceConfig(q){
   return { base: 250000, step: 40000, jitter: 30000 };
 }
 function generateSynthetic(q){
-  const caps = q.split(/\s+/).map(w=> w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  // Untuk mini evo tanpa kata instax, tetap anggap kamera Fujifilm
+  const qNorm = q.toLowerCase().includes("mini evo") ? `Instax ${q}` : q;
+  const caps = qNorm.split(/\s+/).map(w=> w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
   const food = isFoodQuery(q);
   const fashion = isFashionQuery(q);
   const phone = isPhoneQuery(q);
   const laptop = isLaptopQuery(q);
-  const elektronik = isElektronikQuery(q);
+  const isMiniEvo = /mini evo/i.test(q);
   let sources, variants;
-  if(food){
+  if(isMiniEvo){
+    sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
+    variants = ["Brown", "Black", "Pink", "Beige", "Blue", "White", "Cream", "Grey"];
+  } else if(food){
     sources = ["GrabFood","GoFood","ShopeeFood","Shopee","Tokopedia","Blibli","Lazada"];
     variants = ["Paket Hemat", "Komplit", "Spesial", "Family", "Original", "Jumbo", "Porsi Besar", "Pedas Manis"];
   } else if(elektronik && /kulkas/i.test(q)){
@@ -211,7 +216,7 @@ function generateSynthetic(q){
     let store;
     const qq = q.toLowerCase();
     if(/mykonos/i.test(qq)) store = src==="Shopee"?"Mykonos Official Store Shopee":src==="Tokopedia"?"Mykonos Official Tokopedia":src==="Blibli"?"Mykonos Blibli Official":"Mykonos LazMall Official";
-    else if(/instax|fujifilm/i.test(qq)) store = src==="Shopee"?"Fujifilm Official Store Shopee":src==="Tokopedia"?"Fujifilm Official Tokopedia":src==="Blibli"?"Fujifilm Blibli Official":"Fujifilm LazMall";
+    else if(/instax|fujifilm|mini evo/i.test(qq)) store = src==="Shopee"?"Fujifilm Official Store Shopee":src==="Tokopedia"?"Fujifilm Official Tokopedia":src==="Blibli"?"Fujifilm Blibli Official":"Fujifilm LazMall";
     else if(/h&?m/i.test(qq)) store = src==="Shopee"?"H&M Beauty Official Shopee":src==="Tokopedia"?"H&M Official Tokopedia":src==="Blibli"?"H&M Blibli Official":"H&M LazMall";
     else if(/zara/i.test(qq)) store = src==="Shopee"?"Zara Beauty Official Shopee":src==="Tokopedia"?"Zara Official Tokopedia":src==="Blibli"?"Zara Blibli Official":"Zara LazMall";
     else store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
@@ -221,7 +226,9 @@ function generateSynthetic(q){
 
 function pickProducts(q){
   const nq = q.toLowerCase();
-  const tokens = nq.split(/\s+/).filter(Boolean);
+  // normalisasi mini evo -> instax mini evo
+  const nqNorm = nq.includes("mini evo") && !nq.includes("instax") ? `instax ${nq}` : nq;
+  const tokens = nqNorm.split(/\s+/).filter(Boolean);
   const genericTokens = ["mini","original","premium","pro","spesial","evo","official","garansi","best","seller","limited","13","12"];
   const meaningful = tokens.filter(t=> t.length>=2 && !/^\d+$/.test(t) && !genericTokens.includes(t) || t==="hp" && tokens.includes("hp"));
   const useTokens = meaningful.length ? meaningful : tokens.filter(t=> t.length>=3 && !genericTokens.includes(t));
@@ -229,14 +236,13 @@ function pickProducts(q){
     const title = p.title.toLowerCase();
     const cat = p.cat.toLowerCase();
     const combined = `${title} ${cat}`;
-    if(combined.includes(nq)) return true;
-    if(nq.includes("instax") && !title.includes("instax")) return false;
-    // Aquarium/Mini tidak boleh ikut instax mini 13 — mini generik diabaikan
-    if(nq.includes("instax") && title.includes("aquarium")) return false;
-    if(nq.includes("parfum") && !combined.includes("parfum")) return false;
-    if(nq.includes("iphone") && !title.includes("iphone")) return false;
-    if(nq.includes("samsung") && !title.includes("samsung") && !cat.includes("samsung")) return false;
-    if((nq.includes("h&m") || nq.includes("hm")) && nq.includes("parfum")){
+    if(combined.includes(nqNorm)) return true;
+    if(nqNorm.includes("instax") && !title.includes("instax")) return false;
+    if(nqNorm.includes("instax") && title.includes("aquarium")) return false;
+    if(nqNorm.includes("parfum") && !combined.includes("parfum")) return false;
+    if(nqNorm.includes("iphone") && !title.includes("iphone")) return false;
+    if(nqNorm.includes("samsung") && !title.includes("samsung") && !cat.includes("samsung")) return false;
+    if((nqNorm.includes("h&m") || nqNorm.includes("hm")) && nqNorm.includes("parfum")){
       if(!combined.includes("h&m") && !combined.includes("hm")) return false;
     }
     const hits = useTokens.filter(w => title.includes(w) || cat.includes(w)).length;
@@ -250,7 +256,7 @@ function pickProducts(q){
     if(strict.length) filtered = strict;
   }
   if(filtered.length===0){
-    filtered = ALL_PRODUCTS.filter(p => tokens.slice(0,1).some(w => p.title.toLowerCase().includes(w) && w.length>=3));
+    filtered = ALL_PRODUCTS.filter(p => tokens.slice(0,1).some(w => p.title.toLowerCase().includes(w) && w.length>=3 && !genericTokens.includes(w)));
   }
   if(filtered.length===0){
     const synth = generateSynthetic(q);
