@@ -176,7 +176,13 @@ function generateSynthetic(q){
     const rating = +(4.5 + Math.random()*0.4).toFixed(1);
     const sold = 1200 + Math.floor(Math.random()*4000);
     const cat = q.toLowerCase();
-    const store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
+    // toko real sesuai brand query — mykonos/h&m/zara jangan ke Eiger/Nike
+    let store;
+    const qq = q.toLowerCase();
+    if(/mykonos/i.test(qq)) store = src==="Shopee"?"Mykonos Official Store Shopee":src==="Tokopedia"?"Mykonos Official Tokopedia":src==="Blibli"?"Mykonos Blibli Official":"Mykonos LazMall Official";
+    else if(/h&?m/i.test(qq)) store = src==="Shopee"?"H&M Beauty Official Shopee":src==="Tokopedia"?"H&M Official Tokopedia":src==="Blibli"?"H&M Blibli Official":"H&M LazMall";
+    else if(/zara/i.test(qq)) store = src==="Shopee"?"Zara Beauty Official Shopee":src==="Tokopedia"?"Zara Official Tokopedia":src==="Blibli"?"Zara Blibli Official":"Zara LazMall";
+    else store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
     return { title: titleUniq, price: Math.max(9000, Math.round(price/1000)*1000), rating, sold, source: src, store, cat, url: buildUrl(src, titleUniq, q), updatedAt: new Date().toISOString(), valueScore: rating*2 - (price/50000000)*4 + 2 };
   });
 }
