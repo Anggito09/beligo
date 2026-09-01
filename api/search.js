@@ -167,6 +167,7 @@ function generateSynthetic(q){
   const fashion = isFashionQuery(q);
   const phone = isPhoneQuery(q);
   const laptop = isLaptopQuery(q);
+  const elektronik = isElektronikQuery(q);
   const isMiniEvo = /mini evo/i.test(q);
   let sources, variants;
   if(isMiniEvo){
