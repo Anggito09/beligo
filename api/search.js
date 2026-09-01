@@ -9,10 +9,10 @@ const cache = new Map();
 const TTL_MS = 15 * 60 * 1000;
 
 const STORES = {
-  Shopee: ["Mykonos Official Store Shopee", "H&M Beauty Official Shopee", "Zara Beauty Official Shopee", "Erigo Official Store"],
-  Tokopedia: ["Mykonos Official Tokopedia", "H&M Official Tokopedia", "Zara Official Tokopedia", "Eiger Official"],
-  Blibli: ["Mykonos Blibli Official", "H&M Blibli Official", "Zara Blibli Official", "Eiger Blibli"],
-  Lazada: ["Mykonos LazMall Official", "H&M LazMall", "Zara LazMall", "Lazada Flagship Store"],
+  Shopee: ["Shopee Mall - Official", "Fujifilm Official Store Shopee", "Sony Official Store Shopee", "Mykonos Official Store Shopee"],
+  Tokopedia: ["Tokopedia Official Store", "Fujifilm Official Tokopedia", "Mykonos Official Tokopedia", "Sony Official Store Tokopedia"],
+  Blibli: ["Blibli Official Store", "Fujifilm Blibli Official", "Mykonos Blibli Official", "Sony Blibli Official"],
+  Lazada: ["Lazada Flagship Store", "Fujifilm LazMall", "Mykonos LazMall Official", "Sony LazMall"],
   GrabFood: ["Warung Padang Sederhana", "Ayam Geprek Bensu - GrabFood", "Kopi Janji Jiwa GrabFood"],
   GoFood: ["RM Padang Sederhana GoFood", "Bakso Malang Cak Man GoFood", "Sate Taichan GoFood"],
   ShopeeFood: ["Nasi Goreng 88 ShopeeFood", "Martabak Pecenongan ShopeeFood", "Burger King ShopeeFood"],
@@ -97,6 +97,10 @@ const ALL_PRODUCTS = [
   { title:"Parfum Mykonos Unleashed 50ml", price:275000, rating:4.7, sold:3100, source:"Tokopedia", store:"Mykonos Official Tokopedia", url:"#", cat:"parfum mykonos" },
   { title:"Parfum Mykonos Empress 50ml", price:295000, rating:4.7, sold:2600, source:"Blibli", store:"Mykonos Blibli Official", url:"#", cat:"parfum mykonos" },
   { title:"Parfum Mykonos Liberty 50ml", price:265000, rating:4.6, sold:1900, source:"Lazada", store:"Mykonos LazMall Official", url:"#", cat:"parfum mykonos" },
+  // instax mini evo — fujifilm real
+  { title:"Kamera Instax Mini Evo Brown", price:3250000, rating:4.8, sold:1800, source:"Shopee", store:"Fujifilm Official Store Shopee", url:"#", cat:"kamera instax mini evo fujifilm" },
+  { title:"Kamera Instax Mini Evo Black", price:3290000, rating:4.8, sold:1500, source:"Tokopedia", store:"Fujifilm Official Tokopedia", url:"#", cat:"kamera instax mini evo" },
+  { title:"Kamera Instax Mini 12 Pink", price:1299000, rating:4.7, sold:4300, source:"Blibli", store:"Fujifilm Blibli Official", url:"#", cat:"kamera instax fujifilm" },
 ];
 
 function buildUrl(source, title, q){
@@ -122,7 +126,7 @@ function isFashionQuery(q){ return /jaket|baju|kaos|sepatu|tas|sneakers|hoodie|b
 function isPhoneQuery(q){ return /hp|iphone|samsung|xiaomi|galaxy|redmi|oppo|vivo|realme|poco|infinix.*hp/i.test(q); }
 function isLaptopQuery(q){ return /laptop|macbook|thinkpad|vivobook|aspire|pavilion|infinix|asus.*book/i.test(q); }
 function isParfumQuery(q){ return /parfum|perfume|hm|h&m|zara|hmns|mykonos/i.test(q); }
-function isKameraQuery(q){ return /kamera|camera|mirrorless|dslr|instax|fujifilm|canon|nikon|sony.*a64|dji|drone|cctv/i.test(q); }
+function isKameraQuery(q){ return /kamera|camera|mirrorless|dslr|instax|fujifilm|canon|nikon|sony.*a64|dji|drone|cctv|mini evo/i.test(q); }
 function isElektronikQuery(q){ return /elektronik|tv|kulkas|ac|mesin cuci|kamera/i.test(q); }
 function getPriceConfig(q){
   const qq = q.toLowerCase();
@@ -193,10 +197,10 @@ function generateSynthetic(q){
     const rating = +(4.5 + Math.random()*0.4).toFixed(1);
     const sold = 1200 + Math.floor(Math.random()*4000);
     const cat = q.toLowerCase();
-    // toko real sesuai brand query — mykonos/h&m/zara jangan ke Eiger/Nike
     let store;
     const qq = q.toLowerCase();
     if(/mykonos/i.test(qq)) store = src==="Shopee"?"Mykonos Official Store Shopee":src==="Tokopedia"?"Mykonos Official Tokopedia":src==="Blibli"?"Mykonos Blibli Official":"Mykonos LazMall Official";
+    else if(/instax|fujifilm/i.test(qq)) store = src==="Shopee"?"Fujifilm Official Store Shopee":src==="Tokopedia"?"Fujifilm Official Tokopedia":src==="Blibli"?"Fujifilm Blibli Official":"Fujifilm LazMall";
     else if(/h&?m/i.test(qq)) store = src==="Shopee"?"H&M Beauty Official Shopee":src==="Tokopedia"?"H&M Official Tokopedia":src==="Blibli"?"H&M Blibli Official":"H&M LazMall";
     else if(/zara/i.test(qq)) store = src==="Shopee"?"Zara Beauty Official Shopee":src==="Tokopedia"?"Zara Official Tokopedia":src==="Blibli"?"Zara Blibli Official":"Zara LazMall";
     else store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
@@ -207,28 +211,29 @@ function generateSynthetic(q){
 function pickProducts(q){
   const nq = q.toLowerCase();
   const tokens = nq.split(/\s+/).filter(Boolean);
-  // token bermakna = huruf >=2, bukan angka murni (biar "11" tidak match HG11)
-  const meaningful = tokens.filter(t=> t.length>=2 && !/^\d+$/.test(t) && t !== "hp" || t==="hp" && tokens.includes("hp"));
-  const useTokens = meaningful.length ? meaningful : tokens.filter(t=> t.length>=3);
+  const genericTokens = ["mini","original","premium","pro","spesial","evo","official","garansi"];
+  const meaningful = tokens.filter(t=> t.length>=2 && !/^\d+$/.test(t) && !genericTokens.includes(t) || t==="hp" && tokens.includes("hp"));
+  const useTokens = meaningful.length ? meaningful : tokens.filter(t=> t.length>=3 && !genericTokens.includes(t));
   let filtered = ALL_PRODUCTS.filter(p => {
     const title = p.title.toLowerCase();
     const cat = p.cat.toLowerCase();
     const combined = `${title} ${cat}`;
     if(combined.includes(nq)) return true;
-    const hits = useTokens.filter(w => title.includes(w) || cat.includes(w)).length;
+    // untuk instax mini evo: wajib instax, mini/evo tidak cukup sendirian
+    if(nq.includes("instax") && !title.includes("instax")) return false;
+    if(nq.includes("parfum") && !combined.includes("parfum")) return false;
     if(nq.includes("iphone") && !title.includes("iphone")) return false;
     if(nq.includes("samsung") && !title.includes("samsung") && !cat.includes("samsung")) return false;
-    if(nq.includes("parfum") && !combined.includes("parfum")) return false;
-    if(nq.includes("h&m") || nq.includes("hm") && nq.includes("parfum")){
-      if(!combined.includes("h&m") && !combined.includes("hm") && !combined.includes("h&m")) return false;
+    if((nq.includes("h&m") || nq.includes("hm")) && nq.includes("parfum")){
+      if(!combined.includes("h&m") && !combined.includes("hm")) return false;
     }
-    return hits >= 1 && (useTokens.length===1 || hits >=1);
+    const hits = useTokens.filter(w => title.includes(w) || cat.includes(w)).length;
+    return hits >= 1;
   });
-  // kalau masih >0 tapi banyak yang tidak relevan (headset muncul karena 11), saring lagi: hapus yang hanya match angka
   if(filtered.length){
     const strict = filtered.filter(p=>{
       const title = p.title.toLowerCase();
-      return useTokens.some(w=> title.includes(w) && w.length>=3);
+      return useTokens.some(w=> title.includes(w) && w.length>=3 && !["mini","evo"].includes(w) || title.includes("instax"));
     });
     if(strict.length) filtered = strict;
   }
