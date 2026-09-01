@@ -130,6 +130,9 @@ function isKameraQuery(q){ return /kamera|camera|mirrorless|dslr|instax|fujifilm
 function isElektronikQuery(q){ return /elektronik|tv|kulkas|ac|mesin cuci|kamera/i.test(q); }
 function getPriceConfig(q){
   const qq = q.toLowerCase();
+  if(/macbook.*pro.*m2/i.test(qq)) return { base: 18500000, step: 550000, jitter: 300000 };
+  if(/macbook.*air.*m2/i.test(qq)) return { base: 15500000, step: 350000, jitter: 220000 };
+  if(/macbook/i.test(qq)) return { base: 16500000, step: 600000, jitter: 280000 };
   if(/kulkas.*samsung/i.test(qq)) return { base: 12990000, step: 400000, jitter: 250000 };
   if(/kulkas/i.test(qq)) return { base: 3500000, step: 600000, jitter: 250000 };
   if(/tv/i.test(qq)) return { base: 4500000, step: 500000, jitter: 220000 };
@@ -196,7 +199,11 @@ function generateSynthetic(q){
     variants = ["64GB Garansi Resmi", "128GB Garansi Resmi", "128GB Second Original", "256GB Resmi", "Second Mulus", "New Stock", "Best Seller", "Official"];
   } else if(laptop){
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
-    variants = ["i5 8GB 512GB", "Ryzen 5 8GB", "i3 8GB", "RTX 3050", "M2 256GB", "M3 Pro", "i7 16GB", "Gaming"];
+    if(/macbook/i.test(q)){
+      variants = q.toLowerCase().includes("pro") ? ["M2 256GB","M2 Pro 512GB","M2 Max 1TB","M3 Pro 18GB","M2 512GB","M2 Pro Max"] : ["M2 256GB","M2 512GB","M1 256GB","M2 8GB/256GB"];
+    } else {
+      variants = ["i5 8GB 512GB", "Ryzen 5 8GB", "i3 8GB", "RTX 3050", "M2 256GB", "M3 Pro", "i7 16GB", "Gaming"];
+    }
   } else {
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia"];
     variants = ["Original", "Premium", "Pro", "Spesial", "Garansi Resmi", "Second Original", "New Stock", "Best Seller", "Official", "Limited"];
@@ -215,8 +222,9 @@ function generateSynthetic(q){
     const cat = q.toLowerCase();
     let store;
     const qq = q.toLowerCase();
-    if(/mykonos/i.test(qq)) store = src==="Shopee"?"Mykonos Official Store Shopee":src==="Tokopedia"?"Mykonos Official Tokopedia":src==="Blibli"?"Mykonos Blibli Official":"Mykonos LazMall Official";
-    else if(/instax|fujifilm|mini evo/i.test(qq)) store = src==="Shopee"?"Fujifilm Official Store Shopee":src==="Tokopedia"?"Fujifilm Official Tokopedia":src==="Blibli"?"Fujifilm Blibli Official":"Fujifilm LazMall";
+    if(/macbook|apple/i.test(qq)) store = src==="Shopee"?"Apple Official Store Shopee":src==="Tokopedia"?"Apple Official Tokopedia":src==="Blibli"?"Apple Authorized Blibli":"Apple LazMall";
+    else if(/mykonos/i.test(qq)) store = src==="Shopee"?"Mykonos Official Store Shopee":src==="Tokopedia"?"Mykonos Official Tokopedia":src==="Blibli"?"Mykonos Blibli Official":"Mykonos LazMall Official";
+    else if(/instax|fujifilm/i.test(qq)) store = src==="Shopee"?"Fujifilm Official Store Shopee":src==="Tokopedia"?"Fujifilm Official Tokopedia":src==="Blibli"?"Fujifilm Blibli Official":"Fujifilm LazMall";
     else if(/h&?m/i.test(qq)) store = src==="Shopee"?"H&M Beauty Official Shopee":src==="Tokopedia"?"H&M Official Tokopedia":src==="Blibli"?"H&M Blibli Official":"H&M LazMall";
     else if(/zara/i.test(qq)) store = src==="Shopee"?"Zara Beauty Official Shopee":src==="Tokopedia"?"Zara Official Tokopedia":src==="Blibli"?"Zara Blibli Official":"Zara LazMall";
     else store = (STORES[src] && STORES[src][i % STORES[src].length]) || `${src} Official Store`;
