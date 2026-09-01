@@ -130,6 +130,10 @@ function isKameraQuery(q){ return /kamera|camera|mirrorless|dslr|instax|fujifilm
 function isElektronikQuery(q){ return /elektronik|tv|kulkas|ac|mesin cuci|kamera/i.test(q); }
 function getPriceConfig(q){
   const qq = q.toLowerCase();
+  if(/kulkas.*samsung/i.test(qq)) return { base: 12990000, step: 400000, jitter: 250000 };
+  if(/kulkas/i.test(qq)) return { base: 3500000, step: 600000, jitter: 250000 };
+  if(/tv/i.test(qq)) return { base: 4500000, step: 500000, jitter: 220000 };
+  if(/ac/i.test(qq)) return { base: 4800000, step: 400000, jitter: 180000 };
   if(/kamera.*sony.*a64/i.test(qq)) return { base: 11990000, step: 400000, jitter: 200000 };
   if(/canon.*m50/i.test(qq)) return { base: 9850000, step: 350000, jitter: 180000 };
   if(/instax|fujifilm/i.test(qq)) return { base: 1299000, step: 80000, jitter: 60000 };
@@ -158,10 +162,17 @@ function generateSynthetic(q){
   const fashion = isFashionQuery(q);
   const phone = isPhoneQuery(q);
   const laptop = isLaptopQuery(q);
+  const elektronik = isElektronikQuery(q);
   let sources, variants;
   if(food){
     sources = ["GrabFood","GoFood","ShopeeFood","Shopee","Tokopedia","Blibli","Lazada"];
     variants = ["Paket Hemat", "Komplit", "Spesial", "Family", "Original", "Jumbo", "Porsi Besar", "Pedas Manis"];
+  } else if(elektronik && /kulkas/i.test(q)){
+    sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
+    variants = ["2 Pintu Inverter", "2 Pintu J-Tech", "Belleza 180L", "4 Pintu 470L", "Side by Side", "Inverter 260L", "Premium", "Digital"];
+  } else if(elektronik && /tv/i.test(q)){
+    sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
+    variants = ["43 inch 4K UHD", "55 inch QLED Google TV", "32 inch HD", "50 inch Smart TV", "65 inch OLED", "43 inch Smart", "55 inch 4K", "32 inch LED"];
   } else if(fashion){
     sources = ["Shopee","Tokopedia","Blibli","Lazada","Shopee","Tokopedia","Blibli","Lazada"];
     if(isParfumQuery(q)){
