@@ -45,17 +45,26 @@ const ALL_PRODUCTS = [
   { title:"iPhone 15 128GB Garansi Resmi", price:13990000, rating:4.9, sold:2100, source:"Blibli", store:"Apple Authorized Blibli", url:"#", cat:"hp iphone" },
   { title:"Xiaomi Redmi Note 13 Pro 8/256GB", price:3299000, rating:4.7, sold:4300, source:"Shopee", store:"Xiaomi Official Store Shopee", url:"#", cat:"hp xiaomi" },
   // kulkas & elektronik rumah
-  { title:"Kulkas 2 Pintu LG 260L Inverter", price:3899000, rating:4.7, sold:760, source:"Tokopedia", store:"LG Official Tokopedia", url:"#", cat:"kulkas" },
-  { title:"Kulkas Sharp 2 Pintu 220L J-Tech", price:3299000, rating:4.6, sold:540, source:"Shopee", store:"Sharp Official Shopee", url:"#", cat:"kulkas" },
-  { title:"Kulkas Polytron Belleza 180L 2 Pintu", price:2799000, rating:4.4, sold:310, source:"Blibli", store:"Polytron Blibli Official", url:"#", cat:"kulkas" },
+  { title:"Kulkas 2 Pintu LG 260L Inverter", price:3899000, rating:4.7, sold:760, source:"Tokopedia", store:"LG Official Tokopedia", url:"#", cat:"kulkas elektronik" },
+  { title:"Kulkas Sharp 2 Pintu 220L J-Tech", price:3299000, rating:4.6, sold:540, source:"Shopee", store:"Sharp Official Shopee", url:"#", cat:"kulkas elektronik" },
+  { title:"Kulkas Polytron Belleza 180L 2 Pintu", price:2799000, rating:4.4, sold:310, source:"Blibli", store:"Polytron Blibli Official", url:"#", cat:"kulkas elektronik" },
   { title:"TV LED 43 inch Samsung 4K UHD", price:4299000, rating:4.7, sold:890, source:"Tokopedia", store:"Samsung TV Official", url:"#", cat:"tv elektronik" },
+  { title:"TV QLED 55 inch TCL 4K Google TV", price:5999000, rating:4.6, sold:540, source:"Blibli", store:"TCL Official Blibli", url:"#", cat:"tv elektronik" },
+  { title:"AC Daikin 1 PK Inverter", price:4899000, rating:4.7, sold:620, source:"Lazada", store:"Daikin LazMall Official", url:"#", cat:"ac elektronik" },
   { title:"Mesin Cuci LG 8Kg Front Loading", price:3899000, rating:4.6, sold:420, source:"Lazada", store:"LG Home LazMall", url:"#", cat:"mesin cuci elektronik" },
-  // headset & aksesoris
+  { title:"Kulkas 4 Pintu Samsung 470L Digital Inverter", price:12990000, rating:4.8, sold:210, source:"Shopee", store:"Samsung Home Official Shopee", url:"#", cat:"kulkas elektronik" },
+  // headset & aksesoris & kamera elektronik
   { title:"Headset Gaming Fantech HG11 Captain", price:259000, rating:4.7, sold:5400, source:"Shopee", store:"Fantech Official Shopee", url:"#", cat:"headset gaming" },
   { title:"Headset SteelSeries Arctis 1 Wireless", price:1299000, rating:4.8, sold:890, source:"Tokopedia", store:"SteelSeries Official Tokopedia", url:"#", cat:"headset gaming" },
   { title:"Headset Rexus Vonix F30 Gaming", price:399000, rating:4.5, sold:1200, source:"Blibli", store:"Rexus Blibli Official", url:"#", cat:"headset gaming" },
   { title:"Mouse Gaming Logitech G102 Lightsync", price:199000, rating:4.8, sold:12000, source:"Shopee", store:"Logitech Official Shopee", url:"#", cat:"mouse gaming" },
   { title:"Keyboard Mechanical Rexus Daxa M71", price:699000, rating:4.7, sold:2100, source:"Tokopedia", store:"Rexus Official Tokopedia", url:"#", cat:"keyboard gaming" },
+  { title:"Kamera Mirrorless Sony A6400 Kit 16-50mm", price:11990000, rating:4.9, sold:850, source:"Tokopedia", store:"Sony Official Store Tokopedia", url:"#", cat:"kamera mirrorless sony" },
+  { title:"Kamera Canon EOS M50 Mark II Kit", price:9850000, rating:4.8, sold:620, source:"Blibli", store:"Canon Official Store Blibli", url:"#", cat:"kamera canon" },
+  { title:"Kamera Instax Fujifilm Mini 12", price:1299000, rating:4.7, sold:4300, source:"Shopee", store:"Fujifilm Official Shopee", url:"#", cat:"kamera instax fujifilm" },
+  { title:"Kamera Nikon Z30 Kit 16-50mm", price:10990000, rating:4.7, sold:340, source:"Lazada", store:"Nikon Flagship Lazada", url:"#", cat:"kamera nikon" },
+  { title:"Drone DJI Mini 3 Pro", price:12999000, rating:4.8, sold:560, source:"Tokopedia", store:"DJI Official Tokopedia", url:"#", cat:"kamera drone dji" },
+  { title:"Kamera CCTV Xiaomi Outdoor 2K", price:549000, rating:4.6, sold:3100, source:"Shopee", store:"Xiaomi Official Store Shopee", url:"#", cat:"kamera cctv xiaomi" },
   // makanan & minuman — GrabFood / GoFood / ShopeeFood
   { title:"Ayam Geprek Sambal Bawang + Nasi", price:28000, rating:4.8, sold:8200, source:"GrabFood", store:"Ayam Geprek Bensu GrabFood", url:"#", cat:"makanan ayam geprek" },
   { title:"Bakso Malang Komplit Tetelan", price:35000, rating:4.7, sold:5400, source:"GoFood", store:"Bakso Malang Cak Man GoFood", url:"#", cat:"makanan bakso" },
@@ -110,16 +119,24 @@ function buildUrl(source, title, q){
 
 function isFoodQuery(q){ return /nasi|ayam|bakso|sate|kopi|padang|mie|martabak|burger|gacoan|cupang.*(pakan)?/i.test(q); }
 function isFashionQuery(q){ return /jaket|baju|kaos|sepatu|tas|sneakers|hoodie|bomber|fashion|celana|parfum/i.test(q); }
-function isPhoneQuery(q){ return /hp|iphone|samsung|xiaomi|galaxy|redmi|oppo|vivo|realme/i.test(q); }
+function isPhoneQuery(q){ return /hp|iphone|samsung|xiaomi|galaxy|redmi|oppo|vivo|realme|poco|infinix.*hp/i.test(q); }
 function isLaptopQuery(q){ return /laptop|macbook|thinkpad|vivobook|aspire|pavilion|infinix|asus.*book/i.test(q); }
 function isParfumQuery(q){ return /parfum|perfume|hm|h&m|zara|hmns|mykonos/i.test(q); }
+function isKameraQuery(q){ return /kamera|camera|mirrorless|dslr|instax|fujifilm|canon|nikon|sony.*a64|dji|drone|cctv/i.test(q); }
+function isElektronikQuery(q){ return /elektronik|tv|kulkas|ac|mesin cuci|kamera/i.test(q); }
 function getPriceConfig(q){
   const qq = q.toLowerCase();
+  if(/kamera.*sony.*a64/i.test(qq)) return { base: 11990000, step: 400000, jitter: 200000 };
+  if(/canon.*m50/i.test(qq)) return { base: 9850000, step: 350000, jitter: 180000 };
+  if(/instax|fujifilm/i.test(qq)) return { base: 1299000, step: 80000, jitter: 60000 };
+  if(/nikon/i.test(qq)) return { base: 10990000, step: 350000, jitter: 180000 };
+  if(/dji|drone/i.test(qq)) return { base: 12990000, step: 400000, jitter: 220000 };
+  if(/kamera/i.test(qq)) return { base: 5500000, step: 650000, jitter: 200000 };
+  if(isKameraQuery(qq)) return { base: 5500000, step: 650000, jitter: 200000 };
   if(/mykonos/i.test(qq)) return { base: 275000, step: 18000, jitter: 15000 };
   if(/parfum.*h&?m/i.test(qq) || /h&?m.*parfum/i.test(qq)) return { base: 260000, step: 25000, jitter: 18000 };
   if(/parfum.*zara/i.test(qq)) return { base: 400000, step: 30000, jitter: 20000 };
   if(isParfumQuery(qq)) return { base: 280000, step: 28000, jitter: 18000 };
-  if(/iphone\s*11/i.test(qq)) return { base: 6200000, step: 280000, jitter: 180000 };
   if(/iphone\s*15/i.test(qq)) return { base: 13500000, step: 350000, jitter: 200000 };
   if(/iphone/i.test(qq)) return { base: 7500000, step: 400000, jitter: 220000 };
   if(/samsung.*a55/i.test(qq)) return { base: 5499000, step: 120000, jitter: 90000 };
